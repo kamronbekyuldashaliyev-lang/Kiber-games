@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiber Arena - Mau-Mau & O'yinlar Portali</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color, #1a1a2e);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            transition: background 0.3s;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 10px 15px;
+            border-radius: 12px;
+        }
+        .coin-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1c40f;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            width: 100%;
+            max-width: 400px;
+            overflow-x: auto;
+        }
+        .btn {
+            flex: 1;
+            background-color: #0f3460;
+            color: white;
+            border: 1px solid #00adb5;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .btn.active {
+            background-color: #00adb5;
+            color: #1a1a2e;
+        }
+        .section {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            flex-direction: column;
+            align-items: center;
+        }
+        .section.active {
+            display: flex;
+        }
+        .mode-select {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            background: #16213e;
+            border: 1px solid #e94560;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .mode-btn.active {
+            background: #e94560;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid #e94560;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .cell.white { background-color: var(--board-white, #f0d9b5); }
+        .cell.black { background-color: var(--board-black, #b58863); }
+
+        /* Mau-Mau Karta O'yini Styles */
+        .mau-container {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-deck {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .card {
+            width: 52px;
+            height: 78px;
+            background: white;
+            color: black;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        .card.red-card { color: red; }
+        .players-hands {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 10px;
+        }
+        .player-hand {
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            padding: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .store-item {
+            background: rgba(255, 255, 255, 0.08);
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .buy-btn {
+            background: #2ecc71;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span style="font-weight: bold; color: #00adb5;">🎮 Kiber Arena</span>
+        <div class="coin-box">🪙 <span id="coin-count">0</span></div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="btn active" onclick="showSection('checkers')">🔴 Shashka</button>
+        <button class="btn" onclick="showSection('chess')">♟️ Shaxmat</button>
+        <button class="btn" onclick="showSection('maumau')">🃏 Mau-Mau</button>
+        <button class="btn" onclick="showSection('store')">🛒 Do'kon</button>
+        <button class="btn" onclick="showSection('ref')">👥 Taklif</button>
+    </div>
+
+    <!-- Shashka -->
+    <div id="checkers" class="section active">
+        <div class="mode-select">
+            <button class="mode-btn active" onclick="setGameMode('checkers', 'pvp', this)">👥 Do'st bilan</button>
+            <button class="mode-btn" onclick="setGameMode('checkers', 'ai', this)">🤖 Botga qarshi</button>
+        </div>
+        <div id="checkers-board" class="board"></div>
+        <p style="margin-top:10px; color:#e94560;" id="checkers-status">Shashka: Qizillar yurishi</p>
+    </div>
+
+    <!-- Shaxmat -->
+    <div id="chess" class="section">
+        <div class="mode-select">
+            <button class="mode-btn active" onclick="setGameMode('chess', 'pvp', this)">👥 Do'st bilan</button>
+            <button class="mode-btn" onclick="setGameMode('chess', 'ai', this)">🤖 Botga qarshi</button>
+        </div>
+        <div id="chess-board" class="board"></div>
+        <p style="margin-top:10px; color:#e94560;" id="chess-status">Shaxmat: Oqlar yurishi</p>
+    </div>
+
+    <!-- Mau-Mau -->
+    <div id="maumau" class="section">
+        <!-- 1. Kim bilan o'ynash tanlovi -->
+        <div style="font-size:12px; margin-bottom:4px; color:#00adb5;">1. Raqib turini tanlang:</div>
+        <div class="mode-select">
+            <button class="mode-btn active" onclick="setMauOpponent('bot', this)">🤖 Bot bilan</button>
+            <button class="mode-btn" onclick="setMauOpponent('people', this)">👥 Odamlar (Do'stlar) bilan</button>
+        </div>
+
+        <!-- 2. Necha kishilik o'yin tanlovi -->
+        <div style="font-size:12px; margin-bottom:4px; color:#00adb5;">2. O'yinchilar sonini tanlang:</div>
+        <div class="mode-select">
+            <button class="mode-btn active" onclick="setMauCount(2, this)">2 Kishilik</button>
+            <button class="mode-btn" onclick="setMauCount(3, this)">3 Kishilik</button>
+            <button class="mode-btn" onclick="setMauCount(4, this)">4 Kishilik</button>
+        </div>
+
+        <div class="mau-container">
+            <div style="font-size:13px; color:#f1c40f; font-weight:bold;" id="mau-game-info">
+                Rejim: Bot bilan (2 kishilik)
+            </div>
+            
+            <div class="card-deck">
+                <div class="card" style="background:#2c3e50; color:white;" onclick="drawMauCard()">🎴 Karta Olish</div>
+                <div class="card red-card" id="top-card">♥️ 7</div>
+            </div>
+
+            <div class="players-hands">
+                <div style="font-size:12px;">Sizning kartalaringiz:</div>
+                <div class="player-hand" id="my-cards"></div>
+                <div style="font-size:12px; color:#00adb5;" id="opp-info">Raqib: Bot 1 (5 karta)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Do'kon -->
+    <div id="store" class="section">
+        <h3 style="margin-bottom: 15px; color:#00adb5;">Doska va Fon Do'koni</h3>
+        <div class="store-item">
+            <div>
+                <h4>Neon Dizayni</h4>
+                <p style="font-size: 12px; color: #aaa;">Yorqin neon foni va doskasi</p>
+            </div>
+            <button class="buy-btn" onclick="buyItem('neon', 50)">50 🪙</button>
+        </div>
+        <div class="store-item">
+            <div>
+                <h4>Klassik Yog'och</h4>
+                <p style="font-size: 12px; color: #aaa;">Yog'och doska ranglari</p>
+            </div>
+            <button class="buy-btn" onclick="buyItem('wood', 30)">30 🪙</button>
+        </div>
+    </div>
+
+    <!-- Taklif -->
+    <div id="ref" class="section">
+        <h3 style="margin-bottom: 10px; color:#00adb5;">Do'stlaringizni Taklif Qiling</h3>
+        <p style="text-align:center; font
