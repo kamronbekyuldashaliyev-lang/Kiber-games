@@ -29,15 +29,8 @@
             padding-bottom: 75px;
         }
 
-        /* Matrix Canvas Fullscreen */
         #bgCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.3;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3;
         }
 
         .header {
@@ -64,6 +57,7 @@
             background: #00ff66; color: #000; border: none; padding: 10px;
             border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; width: 100%; text-align: center;
             font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+            text-decoration: none; display: block; box-sizing: border-box;
         }
         .btn-sec { background: #3b82f6; color: white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
         .btn-danger { background: #ef4444; color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
@@ -75,31 +69,29 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        .sub-nav { display: flex; gap: 4px; margin-bottom: 5px; flex-wrap: wrap; }
+        .sub-nav { display: flex; gap: 3px; margin-bottom: 5px; flex-wrap: wrap; }
         .sub-btn {
-            flex: 1 1 22%; padding: 6px 2px; background: #0f172a; border: 1px solid #00ff66; color: #00ff66;
-            border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; text-align: center;
+            flex: 1 1 30%; padding: 6px 2px; background: #0f172a; border: 1px solid #00ff66; color: #00ff66;
+            border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; text-align: center;
         }
         .sub-btn.active { background: #00ff66; color: #000; }
 
         .game-sub-section { display: none; flex-direction: column; gap: 8px; }
         .game-sub-section.active { display: flex; }
 
-        /* PASTKI NAVIGATSIYA MENYUSI */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(3, 7, 18, 0.95);
             border-top: 1px solid #00ff66; display: flex; justify-content: space-around; padding: 8px 0;
             backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 -5px 15px rgba(0,255,102,0.2);
         }
         .b-nav-btn {
-            background: none; border: none; color: #94a3b8; font-size: 9px; font-weight: bold;
+            background: none; border: none; color: #94a3b8; font-size: 8px; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
             font-family: 'Courier New', Courier, monospace;
         }
-        .b-nav-btn span { font-size: 15px; }
+        .b-nav-btn span { font-size: 14px; }
         .b-nav-btn.active { color: #00ff66; text-shadow: 0 0 8px #00ff66; }
 
-        /* Mau-Mau Game Styles */
         .game-board {
             background: rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 12px; text-align: center; border: 2px solid #00ff66;
         }
@@ -113,7 +105,6 @@
 
         .rank-row { display: flex; justify-content: space-between; padding: 8px 10px; background: #0f172a; border-radius: 6px; border: 1px solid #1e293b; font-size: 12px; margin-bottom: 5px; }
 
-        /* TRADING & RULETKA STYLES */
         .chart-box {
             background: #000; border: 1px solid #00ff66; border-radius: 8px; height: 120px;
             display: flex; align-items: flex-end; justify-content: space-between; padding: 10px; box-sizing: border-box; overflow: hidden;
@@ -131,7 +122,6 @@
 </head>
 <body>
 
-    <!-- Full Screen Matrix Canvas -->
     <canvas id="bgCanvas"></canvas>
 
     <div class="header">
@@ -143,20 +133,34 @@
     <div id="games" class="section active">
         <div class="card">
             <div class="sub-nav">
-                <button class="sub-btn active" onclick="switchGame('shashka', this)">♟️ Shashka</button>
+                <button class="sub-btn active" onclick="switchGame('chess', this)">♟️ Shaxmat</button>
+                <button class="sub-btn" onclick="switchGame('shashka', this)">🎯 Shashka</button>
                 <button class="sub-btn" onclick="switchGame('mau', this)">🎴 Mau-Mau</button>
                 <button class="sub-btn" onclick="switchGame('vs', this)">⚔️ 1v1 Do'st</button>
                 <button class="sub-btn" onclick="switchGame('roulette', this)">🎰 Ruletka</button>
                 <button class="sub-btn" onclick="switchGame('coinflip', this)">🪙 Tanga</button>
             </div>
 
-            <!-- Shashka -->
-            <div id="shashka" class="game-sub-section active">
+            <!-- ♟️ SHAXMAT O'YINI -->
+            <div id="chess" class="game-sub-section active">
                 <div class="card-info">
-                    <h4>♟️ Botga qarshi Shashka</h4>
+                    <h4>♟️ Kiber Shaxmat (Blitz)</h4>
+                    <p>Botga qarshi tezkor shaxmat jangi. G'alaba uchun +50 🪙 beriladi!</p>
+                </div>
+                <div style="background:#000; border:1px solid #00ff66; border-radius:8px; padding:15px; text-align:center;">
+                    <div style="font-size:26px; margin-bottom:5px;">♚ ♔ ♟️ ♞</div>
+                    <p style="font-size:11px; color:#a7f3d0; margin:5px 0;">Bot sun'iy intellekti bilan shaxmat taxtasida bellashing.</p>
+                </div>
+                <button class="btn" onclick="startMiniGame('Shaxmat', 50)">Shaxmat O'yinini Boshlash</button>
+            </div>
+
+            <!-- Shashka -->
+            <div id="shashka" class="game-sub-section">
+                <div class="card-info">
+                    <h4>🎯 Botga qarshi Shashka</h4>
                     <p>Klassik shashka janggi. G'alaba uchun +40 🪙 beriladi.</p>
                 </div>
-                <button class="btn" onclick="startMiniGame('Shashka')">O'yinni Boshlash</button>
+                <button class="btn" onclick="startMiniGame('Shashka', 40)">O'yinni Boshlash</button>
             </div>
 
             <!-- Mau-Mau -->
@@ -193,7 +197,7 @@
                 <button class="btn btn-sec" onclick="joinRoom()">🚀 Xonaga Ulanish</button>
             </div>
 
-            <!-- 🎰 RULETKA O'YINI (MIN 40 COIN) -->
+            <!-- RULETKA -->
             <div id="roulette" class="game-sub-section">
                 <div class="card-info">
                     <h4>🎰 Kiber Ruletka</h4>
@@ -207,7 +211,7 @@
                 <p id="rouletteResult" style="text-align:center; color:#f59e0b; font-size:11px; margin:5px 0;"></p>
             </div>
 
-            <!-- 🪙 Tanga O'yini (MIN 40 COIN) -->
+            <!-- Tanga -->
             <div id="coinflip" class="game-sub-section">
                 <div class="card-info">
                     <h4>🪙 Oq yoki Qora (Tanga tashlash)</h4>
@@ -222,7 +226,7 @@
         </div>
     </div>
 
-    <!-- 2. TRADING (PIPS ASOSIDA) BO'LIMI (MIN 100 COIN) -->
+    <!-- 2. TRADING BO'LIMI -->
     <div id="trading" class="section">
         <div class="card">
             <div class="card-info">
@@ -238,8 +242,8 @@
             <div class="chart-box" id="chartBox"></div>
 
             <div id="tradeButtonsBefore" style="display:flex; gap:10px; margin-top:5px;">
-                <button class="btn" style="background:#22c55e; color:white;" onclick="openTrade('BUY')">🟢 Sotib olish (BUY)</button>
-                <button class="btn btn-danger" onclick="openTrade('SELL')">🔴 Sotish (SELL)</button>
+                <button class="btn" style="background:#22c55e; color:white;" onclick="openTrade('BUY')">🟢 BUY</button>
+                <button class="btn btn-danger" onclick="openTrade('SELL')">🔴 SELL</button>
             </div>
 
             <div id="tradeButtonsAfter" style="display:none; margin-top:5px;">
@@ -299,6 +303,20 @@
         </div>
     </div>
 
+    <!-- 6. YORDAM BO'LIMI -->
+    <div id="help" class="section">
+        <div class="card">
+            <div class="card-info">
+                <h4>🆘 Yordam va Murojaat</h4>
+                <p>Loyihaga oid savollar, takliflar va muammolar bo'yicha bot admini bilan bog'laning.</p>
+            </div>
+            <div style="text-align:center; padding:10px;">
+                <p style="font-size:12px; color:#00ff66;">👑 Bot Admini: <b>@KAMRONBEK_YULDASHALIYEW</b></p>
+                <a href="https://t.me/KAMRONBEK_YULDASHALIYEW" target="_blank" class="btn btn-sec">💬 Admin Bilan Bog'lanish</a>
+            </div>
+        </div>
+    </div>
+
     <!-- PASTKI ASOSIY MENYU -->
     <div class="bottom-nav">
         <button class="b-nav-btn active" onclick="switchMainTab('games', this)"><span>🎮</span>O'yinlar</button>
@@ -306,9 +324,9 @@
         <button class="b-nav-btn" onclick="switchMainTab('shop', this)"><span>🛒</span>Do'kon</button>
         <button class="b-nav-btn" onclick="switchMainTab('rank', this)"><span>🏆</span>Reyting</button>
         <button class="b-nav-btn" onclick="switchMainTab('hack', this)"><span>💀</span>Akaunt Chopish</button>
+        <button class="b-nav-btn" onclick="switchMainTab('help', this)"><span>🆘</span>Yordam</button>
     </div>
 
-    <!-- Ovozlar -->
     <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
 
@@ -316,7 +334,6 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        /* Matrix Canvas Fullscreen */
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -367,22 +384,22 @@
             btn.classList.add('active');
         }
 
-        function startMiniGame(gameName) {
+        function startMiniGame(gameName, reward) {
             playSound('click');
             alert(gameName + " o'yini ishga tushdi...");
             setTimeout(() => {
                 if (Math.random() > 0.3) {
-                    coins += 40;
+                    coins += reward;
                     playSound('win');
                     updateCoins();
-                    alert("🎉 G'alaba! +40 🪙 qo'shildi!");
+                    alert(`🎉 G'alaba! +${reward} 🪙 qo'shildi!`);
                 } else {
                     alert("❌ Mag'lubiyat! Qaytadan urinib ko'ring.");
                 }
             }, 1200);
         }
 
-        /* --- RULETKA LOGIKASI --- */
+        /* RULETKA */
         function spinRoulette(colorChoice) {
             playSound('click');
             if (coins < 40) return alert("Ruletka o'ynash uchun kamida 40 🪙 kerak!");
@@ -407,4 +424,245 @@
                     updateCoins();
                     resText.innerText = `🎉 Tabriklaymiz! ${num} (${winColor}) tushdi. +80 🪙 yutdingiz!`;
                 } else {
-                    resText.innerText = `❌ ${
+                    resText.innerText = `❌ ${num} (${winColor}) tushdi. Yutqazdingiz (-40 🪙).`;
+                }
+            }, 2000);
+        }
+
+        /* COIN FLIP */
+        function playCoinFlip(choice) {
+            playSound('click');
+            if (coins < 40) return alert("Tangalar yetarli emas! (Minimal 40 🪙)");
+            coins -= 40;
+            updateCoins();
+
+            let resText = document.getElementById('coinResult');
+            resText.innerText = "🪙 Tanga aylanmoqda...";
+
+            setTimeout(() => {
+                let win = Math.random() > 0.5;
+                if (win) {
+                    coins += 80;
+                    playSound('win');
+                    updateCoins();
+                    resText.innerText = "🎉 Tabriklaymiz! Siz yutdingiz (+80 🪙)!";
+                } else {
+                    resText.innerText = "❌ Afsuski, yutqazdingiz (-40 🪙).";
+                }
+            }, 1000);
+        }
+
+        /* TRADING LOGIKASI */
+        let currentPrice = 45200;
+        let entryPrice = 0;
+        let tradeType = '';
+        let isTradingActive = false;
+        let chartBox = document.getElementById('chartBox');
+
+        function initChart() {
+            chartBox.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                let bar = document.createElement('div');
+                let h = Math.floor(Math.random() * 70) + 20;
+                bar.className = 'chart-bar' + (Math.random() > 0.5 ? '' : ' down');
+                bar.style.height = h + '%';
+                chartBox.appendChild(bar);
+            }
+        }
+        initChart();
+
+        setInterval(() => {
+            let change = Math.floor(Math.random() * 60) - 28;
+            currentPrice += change;
+            document.getElementById('tradePrice').innerText = "$" + currentPrice.toLocaleString();
+            
+            if (isTradingActive) {
+                let diff = tradeType === 'BUY' ? (currentPrice - entryPrice) : (entryPrice - currentPrice);
+                let pips = Math.floor(diff / 2);
+                let pipsEl = document.getElementById('pipsCount');
+                pipsEl.innerText = (pips >= 0 ? "+" : "") + pips + " Pips";
+                pipsEl.style.color = pips >= 0 ? "#00ff66" : "#ef4444";
+            }
+
+            let bars = chartBox.children;
+            if(bars.length > 0) {
+                let last = bars[bars.length - 1];
+                let newH = Math.floor(Math.random() * 70) + 20;
+                last.style.height = newH + '%';
+                last.className = 'chart-bar' + (change >= 0 ? '' : ' down');
+            }
+        }, 1200);
+
+        function openTrade(type) {
+            playSound('click');
+            if (coins < 100) return alert("Trading ochish uchun kamida 100 🪙 kerak!");
+
+            coins -= 100;
+            updateCoins();
+
+            tradeType = type;
+            entryPrice = currentPrice;
+            isTradingActive = true;
+
+            document.getElementById('tradeButtonsBefore').style.display = 'none';
+            document.getElementById('tradeButtonsAfter').style.display = 'block';
+            document.getElementById('tradeStatus').innerText = `⚡ ${type} pozitsiyasi ochildi ($${entryPrice}). Pipsni kuzating va o'zingiz yoping!`;
+        }
+
+        function closeTrade() {
+            playSound('click');
+            if (!isTradingActive) return;
+
+            isTradingActive = false;
+            let diff = tradeType === 'BUY' ? (currentPrice - entryPrice) : (entryPrice - currentPrice);
+            let pips = Math.floor(diff / 2);
+            
+            let status = document.getElementById('tradeStatus');
+            document.getElementById('tradeButtonsBefore').style.display = 'flex';
+            document.getElementById('tradeButtonsAfter').style.display = 'none';
+
+            if (pips > 0) {
+                let reward = 100 + (pips * 5);
+                coins += reward;
+                playSound('win');
+                updateCoins();
+                status.innerText = `🎉 Tabriklaymiz! +${pips} pips bilan yopildi. Sizga +${reward} 🪙 berildi!`;
+            } else {
+                status.innerText = `📉 Bozor zarariga yopildi (${pips} pips). 100 🪙 yutqazdingiz.`;
+            }
+            document.getElementById('pipsCount').innerText = "0 Pips";
+        }
+
+        /* MAU MAU LOGIC */
+        const suits = ['♥️', '♦️', '♣️', '♠️'];
+        const values = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        let currentTableCard = { suit: '♥️', value: '7' };
+        let myHand = [];
+        let botCardsCount = 4;
+
+        function getRandomCard() {
+            return { suit: suits[Math.floor(Math.random() * suits.length)], value: values[Math.floor(Math.random() * values.length)] };
+        }
+
+        function resetMauGame() {
+            playSound('click');
+            currentTableCard = getRandomCard();
+            myHand = [getRandomCard(), getRandomCard(), getRandomCard(), getRandomCard()];
+            botCardsCount = 4;
+            renderMau();
+        }
+
+        function renderMau() {
+            let tableEl = document.getElementById('tableCard');
+            tableEl.innerText = `${currentTableCard.suit} ${currentTableCard.value}`;
+            tableEl.className = `card-item ${(currentTableCard.suit==='♥️'||currentTableCard.suit==='♦️')?'red':''}`;
+            document.getElementById('botCardCount').innerText = botCardsCount;
+
+            let myHandEl = document.getElementById('myCards');
+            myHandEl.innerHTML = '';
+            myHand.forEach((card, index) => {
+                let div = document.createElement('div');
+                div.className = `card-item ${(card.suit==='♥️'||card.suit==='♦️')?'red':''}`;
+                div.innerText = `${card.suit} ${card.value}`;
+                div.onclick = () => playCard(index);
+                myHandEl.appendChild(div);
+            });
+        }
+
+        function playCard(index) {
+            let card = myHand[index];
+            if (card.suit === currentTableCard.suit || card.value === currentTableCard.value) {
+                playSound('click');
+                currentTableCard = card;
+                myHand.splice(index, 1);
+                renderMau();
+                if (myHand.length === 0) {
+                    playSound('win');
+                    coins += 40;
+                    updateCoins();
+                    alert("🎉 Mau-Mau g'olibi! +40 🪙");
+                    resetMauGame();
+                    return;
+                }
+                setTimeout(botTurn, 800);
+            } else {
+                alert("❌ Bu kartani tashlab bo'lmaydi!");
+            }
+        }
+
+        function drawCard() {
+            playSound('click');
+            myHand.push(getRandomCard());
+            renderMau();
+        }
+
+        function botTurn() {
+            botCardsCount = Math.max(1, botCardsCount + (Math.random() > 0.5 ? -1 : 1));
+            currentTableCard = getRandomCard();
+            renderMau();
+        }
+
+        let currentRoomCode = '';
+        function createRoom() {
+            playSound('click');
+            currentRoomCode = "KB-" + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('roomCode').innerText = currentRoomCode;
+            document.getElementById('roomArea').style.display = 'block';
+        }
+
+        function shareRoom() {
+            let text = `Kiber Arena 1v1 jangi! Xona kodi: ${currentRoomCode}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KiberArenaBot&text=${encodeURIComponent(text)}`);
+        }
+
+        function joinRoom() {
+            let code = document.getElementById('joinCodeInput').value.trim();
+            if (code) alert(`✅ Xonaga (${code}) ulanish bajarildi!`);
+        }
+
+        function startTerminalPrank() {
+            playSound('click');
+            let nick = document.getElementById('instaNick').value.trim();
+            if (!nick) return alert("Target nikini kiriting!");
+
+            let box = document.getElementById('terminalBox');
+            box.style.display = 'block';
+            box.innerHTML = `[>] Target aniqlandi: ${nick}<br>`;
+
+            let logs = [
+                `[+] Instagram SSL handshake buzildi...`,
+                `[+] Brute-force token aniqlash boshlandi...`,
+                `[!] Sessiya cookie fayllari o'qilmoqda...`,
+                `[SUCCESS] Akaunt muvaffaqiyatli qo'lga kiritildi! 🔓`
+            ];
+
+            logs.forEach((log, i) => {
+                setTimeout(() => {
+                    box.innerHTML += `${log}<br>`;
+                    box.scrollTop = box.scrollHeight;
+                    if (i === logs.length - 1) playSound('win');
+                }, (i + 1) * 800);
+            });
+        }
+
+        function buyItem(price) {
+            playSound('click');
+            if (coins >= price) {
+                coins -= price;
+                updateCoins();
+                alert("Xarid muvaffaqiyatli yakunlandi! ✅");
+            } else {
+                alert("Koinlar yetarli emas! ❌");
+            }
+        }
+
+        function updateCoins() {
+            document.getElementById('coinCount').innerText = coins;
+            document.getElementById('myRankCoins').innerText = coins + " 🪙";
+            localStorage.setItem('kiber_coins', coins);
+        }
+
+        resetMauGame();
+    </script>
+</body>
+</html>
