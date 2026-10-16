@@ -3,280 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiber Arena - Mau-Mau & O'yinlar Portali</title>
+    <title>Kiber Arena</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131c31;
+            --text-color: #ffffff;
+            --accent-color: #38bdf8;
         }
         body {
-            background-color: var(--bg-color, #1a1a2e);
-            color: #ffffff;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            padding: 12px;
-            transition: background 0.3s;
         }
         .header {
+            width: 100%;
+            max-width: 380px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 12px;
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--card-bg);
             padding: 10px 15px;
             border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
-        .coin-box {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #f1c40f;
-            color: #000;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: bold;
+        .coins { background: #f59e0b; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .nav { display: flex; gap: 6px; width: 100%; max-width: 380px; margin-bottom: 15px; }
+        .nav-btn {
+            flex: 1; padding: 10px 5px; background: #1e293b; border: 1px solid #334155;
+            color: white; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; text-align: center;
         }
-        .nav-buttons {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-            width: 100%;
-            max-width: 400px;
-            overflow-x: auto;
-        }
-        .btn {
-            flex: 1;
-            background-color: #0f3460;
-            color: white;
-            border: 1px solid #00adb5;
-            padding: 8px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-        .btn.active {
-            background-color: #00adb5;
-            color: #1a1a2e;
-        }
-        .section {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-            flex-direction: column;
-            align-items: center;
-        }
-        .section.active {
-            display: flex;
-        }
-        .mode-select {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .mode-btn {
-            flex: 1;
-            padding: 8px;
-            background: #16213e;
-            border: 1px solid #e94560;
-            color: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .mode-btn.active {
-            background: #e94560;
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            width: 100%;
-            aspect-ratio: 1;
-            border: 3px solid #e94560;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .cell.white { background-color: var(--board-white, #f0d9b5); }
-        .cell.black { background-color: var(--board-black, #b58863); }
-
-        /* Mau-Mau Karta O'yini Styles */
-        .mau-container {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .card-deck {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+        .nav-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+        .section { display: none; width: 100%; max-width: 380px; flex-direction: column; gap: 10px; }
+        .section.active { display: flex; }
         .card {
-            width: 52px;
-            height: 78px;
-            background: white;
-            color: black;
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 18px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            cursor: pointer;
+            background: var(--card-bg); padding: 12px 15px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid #1e293b;
         }
-        .card.red-card { color: red; }
-        .players-hands {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            gap: 10px;
-        }
-        .player-hand {
-            display: flex;
-            gap: 5px;
-            overflow-x: auto;
-            padding: 6px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 6px;
-        }
-
-        .store-item {
-            background: rgba(255, 255, 255, 0.08);
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .card-info h4 { margin: 0 0 5px 0; font-size: 15px; color: #38bdf8; }
+        .card-info p { margin: 0; font-size: 12px; color: #94a3b8; }
         .buy-btn {
-            background: #2ecc71;
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+            background: #22c55e; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;
         }
+        .buy-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <span style="font-weight: bold; color: #00adb5;">🎮 Kiber Arena</span>
-        <div class="coin-box">🪙 <span id="coin-count">0</span></div>
+        <h3>⚡ Kiber Arena</h3>
+        <div class="coins">🪙 <span id="coinCount">150</span></div>
     </div>
 
-    <div class="nav-buttons">
-        <button class="btn active" onclick="showSection('checkers')">🔴 Shashka</button>
-        <button class="btn" onclick="showSection('chess')">♟️ Shaxmat</button>
-        <button class="btn" onclick="showSection('maumau')">🃏 Mau-Mau</button>
-        <button class="btn" onclick="showSection('store')">🛒 Do'kon</button>
-        <button class="btn" onclick="showSection('ref')">👥 Taklif</button>
+    <div class="nav">
+        <button class="nav-btn active" onclick="switchTab('shashka', this)">Shashka</button>
+        <button class="nav-btn" onclick="switchTab('mau', this)">Mau-Mau</button>
+        <button class="nav-btn" onclick="switchTab('shop', this)">Do'kon</button>
+        <button class="nav-btn" onclick="switchTab('ref', this)">Taklif</button>
     </div>
 
-    <!-- Shashka -->
-    <div id="checkers" class="section active">
-        <div class="mode-select">
-            <button class="mode-btn active" onclick="setGameMode('checkers', 'pvp', this)">👥 Do'st bilan</button>
-            <button class="mode-btn" onclick="setGameMode('checkers', 'ai', this)">🤖 Botga qarshi</button>
-        </div>
-        <div id="checkers-board" class="board"></div>
-        <p style="margin-top:10px; color:#e94560;" id="checkers-status">Shashka: Qizillar yurishi</p>
-    </div>
-
-    <!-- Shaxmat -->
-    <div id="chess" class="section">
-        <div class="mode-select">
-            <button class="mode-btn active" onclick="setGameMode('chess', 'pvp', this)">👥 Do'st bilan</button>
-            <button class="mode-btn" onclick="setGameMode('chess', 'ai', this)">🤖 Botga qarshi</button>
-        </div>
-        <div id="chess-board" class="board"></div>
-        <p style="margin-top:10px; color:#e94560;" id="chess-status">Shaxmat: Oqlar yurishi</p>
-    </div>
-
-    <!-- Mau-Mau -->
-    <div id="maumau" class="section">
-        <!-- 1. Kim bilan o'ynash tanlovi -->
-        <div style="font-size:12px; margin-bottom:4px; color:#00adb5;">1. Raqib turini tanlang:</div>
-        <div class="mode-select">
-            <button class="mode-btn active" onclick="setMauOpponent('bot', this)">🤖 Bot bilan</button>
-            <button class="mode-btn" onclick="setMauOpponent('people', this)">👥 Odamlar (Do'stlar) bilan</button>
-        </div>
-
-        <!-- 2. Necha kishilik o'yin tanlovi -->
-        <div style="font-size:12px; margin-bottom:4px; color:#00adb5;">2. O'yinchilar sonini tanlang:</div>
-        <div class="mode-select">
-            <button class="mode-btn active" onclick="setMauCount(2, this)">2 Kishilik</button>
-            <button class="mode-btn" onclick="setMauCount(3, this)">3 Kishilik</button>
-            <button class="mode-btn" onclick="setMauCount(4, this)">4 Kishilik</button>
-        </div>
-
-        <div class="mau-container">
-            <div style="font-size:13px; color:#f1c40f; font-weight:bold;" id="mau-game-info">
-                Rejim: Bot bilan (2 kishilik)
-            </div>
-            
-            <div class="card-deck">
-                <div class="card" style="background:#2c3e50; color:white;" onclick="drawMauCard()">🎴 Karta Olish</div>
-                <div class="card red-card" id="top-card">♥️ 7</div>
-            </div>
-
-            <div class="players-hands">
-                <div style="font-size:12px;">Sizning kartalaringiz:</div>
-                <div class="player-hand" id="my-cards"></div>
-                <div style="font-size:12px; color:#00adb5;" id="opp-info">Raqib: Bot 1 (5 karta)</div>
-            </div>
+    <!-- Shashka bo'limi -->
+    <div id="shashka" class="section active">
+        <div class="card">
+            <div class="card-info"><h4>Botga qarshi</h4><p>G‘alaba uchun +25 🪙 beriladi</p></div>
+            <button class="buy-btn" onclick="playGame('Shashka')">O'ynash</button>
         </div>
     </div>
 
-    <!-- Do'kon -->
-    <div id="store" class="section">
-        <h3 style="margin-bottom: 15px; color:#00adb5;">Doska va Fon Do'koni</h3>
-        <div class="store-item">
-            <div>
-                <h4>Neon Dizayni</h4>
-                <p style="font-size: 12px; color: #aaa;">Yorqin neon foni va doskasi</p>
-            </div>
-            <button class="buy-btn" onclick="buyItem('neon', 50)">50 🪙</button>
-        </div>
-        <div class="store-item">
-            <div>
-                <h4>Klassik Yog'och</h4>
-                <p style="font-size: 12px; color: #aaa;">Yog'och doska ranglari</p>
-            </div>
-            <button class="buy-btn" onclick="buyItem('wood', 30)">30 🪙</button>
+    <!-- Mau-Mau bo'limi -->
+    <div id="mau" class="section">
+        <div class="card">
+            <div class="card-info"><h4>Karta jangi</h4><p>G‘alaba uchun +25 🪙 beriladi</p></div>
+            <button class="buy-btn" onclick="playGame('Mau-Mau')">O'ynash</button>
         </div>
     </div>
 
-    <!-- Taklif -->
+    <!-- Do'kon bo'limi -->
+    <div id="shop" class="section">
+        <div class="card"><div class="card-info"><h4>🛡 Qalqon</h4><p>Bir marta yutqazmaslik</p></div><button class="buy-btn" onclick="buyItem(30)">30 🪙</button></div>
+        <div class="card"><div class="card-info"><h4>💣 Bomba</h4><p>Botning 3 ta toshini yiqitish</p></div><button class="buy-btn" onclick="buyItem(25)">25 🪙</button></div>
+        <div class="card"><div class="card-info"><h4>👑 Tojvor</h4><p>VIP unvon - ramziy</p></div><button class="buy-btn" onclick="buyItem(50)">50 🪙</button></div>
+        <div class="card"><div class="card-info"><h4>⚡ 2X Bonus</h4><p>Keyingi g'alabada 2x tanga</p></div><button class="buy-btn" onclick="buyItem(40)">40 🪙</button></div>
+    </div>
+
+    <!-- Taklif bo'limi -->
     <div id="ref" class="section">
-        <h3 style="margin-bottom: 10px; color:#00adb5;">Do'stlaringizni Taklif Qiling</h3>
-        <p style="text-align:center; font
+        <div class="card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="card-info"><h4>👥 Do'st taklif qilish</h4><p>Har bir taklif qilingan do'st uchun ikkalangizga ham <b>+20 tanga</b> beriladi!</p></div>
+            <button class="buy-btn" style="width: 100%;" onclick="copyRef()">Havoladan nusxa olish</button>
+        </div>
+    </div>
+
+    <!-- Ovoz effektlari -->
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let coins = parseInt(localStorage.getItem('kiber_coins')) || 150;
+        document.getElementById('coinCount').innerText = coins;
+
+        function playSound(type) {
+            let sound = type === 'win' ? document.getElementById('winSound') : document.getElementById('clickSound');
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log(e));
+            }
+        }
+
+        function switchTab(tabId, btn) {
+            playSound('click');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function playGame(gameName) {
+            playSound('click');
+            let won = confirm(gameName + " o'yini boshlandi. G'alaba qozonsangiz OK tugmasini bosing (+25 tanga olish uchun).");
+            if (won) {
+                coins += 25;
+                playSound('win');
+                updateCoins();
+                alert("Tabriklaymiz! Siz g'alaba qozondingiz va +25 🪙 qo'lga kiritdingiz!");
+            }
+        }
+
+        function buyItem(price) {
+            playSound('click');
+            if (coins >= price) {
+                coins -= price;
+                updateCoins();
+                alert("Muvaffaqiyatli xarid qilindi! ✅");
+            } else {
+                alert("Tangalaringiz yetarli emas! ❌ Do'stlaringizni taklif qilib tanga yig'ing (+20 🪙).");
+            }
+        }
+
+        function updateCoins() {
+            document.getElementById('coinCount').innerText = coins;
+            localStorage.setItem('kiber_coins', coins);
+        }
+
+        function copyRef() {
+            playSound('click');
+            navigator.clipboard.writeText("https://t.me/KiberArenaBot?start=ref");
+            alert("Referal havola nusxalandi! Do'stlaringizga yuboring (+20 tanga oling).");
+        }
+    </script>
+</body>
+</html>
