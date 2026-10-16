@@ -3,161 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiber Arena - Pro Games</title>
+    <title>Kiber Arena - Hacker Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #131c31;
-            --text-color: #ffffff;
-            --accent-color: #38bdf8;
+            --bg-color: #030712;
+            --card-bg: rgba(10, 15, 30, 0.9);
+            --text-color: #00ff66;
+            --accent-color: #00ff66;
+            --border-glow: #00ff66;
         }
+
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 75px;
         }
+
+        /* Matrix Canvas Fullscreen */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
         .header {
             width: 100%; max-width: 400px; display: flex; justify-content: space-between;
             align-items: center; background: var(--card-bg); padding: 10px 15px; border-radius: 12px;
-            margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 1px solid #1e293b;
+            margin-bottom: 12px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.25); border: 1px solid var(--border-glow);
+            backdrop-filter: blur(8px);
         }
-        .coins { background: #f59e0b; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        
-        .nav { display: flex; gap: 4px; width: 100%; max-width: 400px; margin-bottom: 12px; }
-        .nav-btn {
-            flex: 1; padding: 8px 2px; background: #1e293b; border: 1px solid #334155;
-            color: white; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; text-align: center;
-        }
-        .nav-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+        .header h3 { color: var(--accent-color); margin: 0; text-shadow: 0 0 8px #00ff66; font-size: 14px; }
+        .coins { background: #f59e0b; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; box-shadow: 0 0 10px #f59e0b; }
         
         .section { display: none; width: 100%; max-width: 400px; flex-direction: column; gap: 10px; }
         .section.active { display: flex; }
         
         .card {
             background: var(--card-bg); padding: 12px 15px; border-radius: 12px;
-            display: flex; flex-direction: column; gap: 8px; border: 1px solid #1e293b;
+            display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(0, 255, 102, 0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
         }
-        .card-info h4 { margin: 0 0 4px 0; font-size: 15px; color: #38bdf8; }
+        .card-info h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--accent-color); text-shadow: 0 0 5px #00ff66; }
         .card-info p { margin: 0; font-size: 11px; color: #94a3b8; }
         
         .btn {
-            background: #22c55e; color: white; border: none; padding: 10px;
+            background: #00ff66; color: #000; border: none; padding: 10px;
             border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; width: 100%; text-align: center;
+            font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
         }
-        .btn-sec { background: #3b82f6; }
+        .btn-sec { background: #3b82f6; color: white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .btn-danger { background: #ef4444; color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
         .btn:active { transform: scale(0.98); }
         
         input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155;
-            background: #0f172a; color: white; outline: none; box-sizing: border-box;
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #00ff66;
+            background: #000000; color: #00ff66; outline: none; box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
         }
+
+        .sub-nav { display: flex; gap: 4px; margin-bottom: 5px; flex-wrap: wrap; }
+        .sub-btn {
+            flex: 1 1 22%; padding: 6px 2px; background: #0f172a; border: 1px solid #00ff66; color: #00ff66;
+            border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; text-align: center;
+        }
+        .sub-btn.active { background: #00ff66; color: #000; }
+
+        .game-sub-section { display: none; flex-direction: column; gap: 8px; }
+        .game-sub-section.active { display: flex; }
+
+        /* PASTKI NAVIGATSIYA MENYUSI */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(3, 7, 18, 0.95);
+            border-top: 1px solid #00ff66; display: flex; justify-content: space-around; padding: 8px 0;
+            backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 -5px 15px rgba(0,255,102,0.2);
+        }
+        .b-nav-btn {
+            background: none; border: none; color: #94a3b8; font-size: 9px; font-weight: bold;
+            display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .b-nav-btn span { font-size: 15px; }
+        .b-nav-btn.active { color: #00ff66; text-shadow: 0 0 8px #00ff66; }
 
         /* Mau-Mau Game Styles */
         .game-board {
-            background: #064e3b; border-radius: 12px; padding: 15px; text-align: center; border: 2px solid #10b981;
+            background: rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 12px; text-align: center; border: 2px solid #00ff66;
         }
-        .cards-container { display: flex; gap: 8px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+        .cards-container { display: flex; gap: 6px; justify-content: center; margin: 8px 0; flex-wrap: wrap; }
         .card-item {
-            width: 45px; height: 65px; background: white; color: black; border-radius: 6px;
-            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px;
+            width: 40px; height: 58px; background: white; color: black; border-radius: 5px;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 15px;
             cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5); user-select: none;
         }
         .card-item.red { color: #dc2626; }
-        .card-back { background: #1e3a8a; color: white; border: 1px solid white; }
+
+        .rank-row { display: flex; justify-content: space-between; padding: 8px 10px; background: #0f172a; border-radius: 6px; border: 1px solid #1e293b; font-size: 12px; margin-bottom: 5px; }
+
+        /* TRADING & RULETKA STYLES */
+        .chart-box {
+            background: #000; border: 1px solid #00ff66; border-radius: 8px; height: 120px;
+            display: flex; align-items: flex-end; justify-content: space-between; padding: 10px; box-sizing: border-box; overflow: hidden;
+        }
+        .chart-bar { width: 8%; background: #00ff66; border-radius: 2px 2px 0 0; transition: height 0.3s; }
+        .chart-bar.down { background: #ef4444; }
+
+        .roulette-wheel {
+            width: 100px; height: 100px; border-radius: 50%; border: 4px solid #00ff66;
+            margin: 10px auto; display: flex; justify-content: center; align-items: center;
+            font-size: 24px; font-weight: bold; background: #000; color: #00ff66;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5); transition: transform 2s ease-out;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Full Screen Matrix Canvas -->
+    <canvas id="bgCanvas"></canvas>
+
     <div class="header">
-        <h3>⚡ Kiber Arena</h3>
+        <h3>⚡ KIBER ARENA [SECURE]</h3>
         <div class="coins">🪙 <span id="coinCount">150</span></div>
     </div>
 
-    <!-- Navigatsiya -->
-    <div class="nav">
-        <button class="nav-btn active" onclick="switchTab('mau', this)">🎴 Mau-Mau</button>
-        <button class="nav-btn" onclick="switchTab('vs', this)">⚔️ 1v1 Do'st</button>
-        <button class="nav-btn" onclick="switchTab('prank', this)">📸 Prank</button>
-        <button class="nav-btn" onclick="switchTab('shop', this)">🛒 Do'kon</button>
+    <!-- 1. O'YINLAR BO'LIMI -->
+    <div id="games" class="section active">
+        <div class="card">
+            <div class="sub-nav">
+                <button class="sub-btn active" onclick="switchGame('shashka', this)">♟️ Shashka</button>
+                <button class="sub-btn" onclick="switchGame('mau', this)">🎴 Mau-Mau</button>
+                <button class="sub-btn" onclick="switchGame('vs', this)">⚔️ 1v1 Do'st</button>
+                <button class="sub-btn" onclick="switchGame('roulette', this)">🎰 Ruletka</button>
+                <button class="sub-btn" onclick="switchGame('coinflip', this)">🪙 Tanga</button>
+            </div>
+
+            <!-- Shashka -->
+            <div id="shashka" class="game-sub-section active">
+                <div class="card-info">
+                    <h4>♟️ Botga qarshi Shashka</h4>
+                    <p>Klassik shashka janggi. G'alaba uchun +40 🪙 beriladi.</p>
+                </div>
+                <button class="btn" onclick="startMiniGame('Shashka')">O'yinni Boshlash</button>
+            </div>
+
+            <!-- Mau-Mau -->
+            <div id="mau" class="game-sub-section">
+                <div class="card-info">
+                    <h4>🎴 Mau-Mau Karta Jangi</h4>
+                    <p>Mos karta tashlang va g'alaba qozoning. Mukofot: +40 🪙</p>
+                </div>
+                <div class="game-board">
+                    <div style="color: #a7f3d0; font-size: 11px;">Bot Kartalari: <span id="botCardCount">4</span> ta</div>
+                    <div style="margin: 10px 0;">
+                        <span style="font-size: 11px; color: #cbd5e1;">Stoldagi Karta:</span>
+                        <div id="tableCard" class="card-item" style="margin: 4px auto;">♥️ 7</div>
+                    </div>
+                    <div style="color: #a7f3d0; font-size: 11px;">Sizning Kartalaringiz:</div>
+                    <div id="myCards" class="cards-container"></div>
+                    <button class="btn btn-sec" style="font-size:11px; padding:6px;" onclick="drawCard()">🎴 Karta olish</button>
+                </div>
+                <button class="btn" onclick="resetMauGame()">🔄 Qaytadan</button>
+            </div>
+
+            <!-- 1v1 Do'st -->
+            <div id="vs" class="game-sub-section">
+                <div class="card-info">
+                    <h4>⚔️ 1v1 Do'st Bilan Bellashuv</h4>
+                    <p>Xona kodi orqali do'stingizni taklif qiling.</p>
+                </div>
+                <button class="btn" onclick="createRoom()">🔑 Xona Yaratish</button>
+                <div id="roomArea" style="display:none; text-align:center; background:#000; padding:8px; border-radius:6px; border:1px solid #00ff66;">
+                    <p style="margin:4px 0; color:#00ff66; font-size:12px;">Kod: <span id="roomCode" style="color:#f59e0b; font-size:16px;">---</span></p>
+                    <button class="btn btn-sec" style="padding:6px; font-size:11px;" onclick="shareRoom()">📩 Havolani Ulashish</button>
+                </div>
+                <input type="text" id="joinCodeInput" placeholder="Xona kodini kiriting..." style="margin-top:5px;">
+                <button class="btn btn-sec" onclick="joinRoom()">🚀 Xonaga Ulanish</button>
+            </div>
+
+            <!-- 🎰 RULETKA O'YINI (MIN 40 COIN) -->
+            <div id="roulette" class="game-sub-section">
+                <div class="card-info">
+                    <h4>🎰 Kiber Ruletka</h4>
+                    <p>Rangni tanlang (Min. Tikish: 40 🪙). G'alaba: 2x mukofot!</p>
+                </div>
+                <div class="roulette-wheel" id="rouletteWheel">🎯</div>
+                <div style="display:flex; gap:8px; margin-top:5px;">
+                    <button class="btn btn-danger" onclick="spinRoulette('RED')">🔴 Qizil (RED)</button>
+                    <button class="btn" style="background:#000; color:#00ff66; border:1px solid #00ff66;" onclick="spinRoulette('BLACK')">⚫ Qora (BLACK)</button>
+                </div>
+                <p id="rouletteResult" style="text-align:center; color:#f59e0b; font-size:11px; margin:5px 0;"></p>
+            </div>
+
+            <!-- 🪙 Tanga O'yini (MIN 40 COIN) -->
+            <div id="coinflip" class="game-sub-section">
+                <div class="card-info">
+                    <h4>🪙 Oq yoki Qora (Tanga tashlash)</h4>
+                    <p>Tangani taxmin qiling va koiningizni 2 baravar ko'paytiring! (Tikish: 40 🪙)</p>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn" onclick="playCoinFlip('heads')">🪙 Oq (Heads)</button>
+                    <button class="btn btn-sec" onclick="playCoinFlip('tails')">🪙 Qora (Tails)</button>
+                </div>
+                <p id="coinResult" style="text-align:center; color:#f59e0b; font-size:11px; margin:5px 0;"></p>
+            </div>
+        </div>
     </div>
 
-    <!-- MAU-MAU KARTA O'YINI -->
-    <div id="mau" class="section active">
+    <!-- 2. TRADING (PIPS ASOSIDA) BO'LIMI (MIN 100 COIN) -->
+    <div id="trading" class="section">
         <div class="card">
             <div class="card-info">
-                <h4>🎴 Mau-Mau Karta Jangi</h4>
-                <p>Top kartaga rang yoki raqam bo'yicha mos karta tashlang. G'alaba: +25 🪙</p>
+                <h4>📈 Kiber Trading (Live Pips)</h4>
+                <p>Min. stavka: 100 🪙. Pips o'zgarishiga qarab savdoni o'zingiz yoping!</p>
             </div>
             
-            <div class="game-board">
-                <div style="color: #a7f3d0; font-size: 12px; margin-bottom: 5px;">Bot Kartalari: <span id="botCardCount">4</span> ta</div>
-                
-                <div style="margin: 15px 0;">
-                    <span style="font-size: 12px; color: #cbd5e1;">Stoldagi Karta:</span>
-                    <div id="tableCard" class="card-item" style="margin: 5px auto;">♥️ 7</div>
-                </div>
-
-                <div style="color: #a7f3d0; font-size: 12px;">Sizning Kartalaringiz:</div>
-                <div id="myCards" class="cards-container"></div>
-
-                <button class="btn btn-sec" style="margin-top: 5px;" onclick="drawCard()">🎴 Baza (Deck) dan karta olish</button>
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#00ff66;">
+                <span>Narx: <b id="tradePrice">$45,200</b></span>
+                <span>Pips: <b id="pipsCount" style="color:#f59e0b;">0 Pips</b></span>
             </div>
-            <button class="btn" onclick="resetMauGame()">🔄 Qaytadan Boshlash</button>
+
+            <div class="chart-box" id="chartBox"></div>
+
+            <div id="tradeButtonsBefore" style="display:flex; gap:10px; margin-top:5px;">
+                <button class="btn" style="background:#22c55e; color:white;" onclick="openTrade('BUY')">🟢 Sotib olish (BUY)</button>
+                <button class="btn btn-danger" onclick="openTrade('SELL')">🔴 Sotish (SELL)</button>
+            </div>
+
+            <div id="tradeButtonsAfter" style="display:none; margin-top:5px;">
+                <button class="btn btn-danger" onclick="closeTrade()">⏹️ Savdoni Yopish (Close)</button>
+            </div>
+
+            <p id="tradeStatus" style="font-size:11px; text-align:center; color:#f59e0b; margin:0;"></p>
         </div>
     </div>
 
-    <!-- 1v1 DO'ST BILAN O'YNASH -->
-    <div id="vs" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>👥 Do'st Bilan 1v1 Xona Yaratish</h4>
-                <p>Maxsus xona kodi bilan do'stingiz bilan belashib o'ynang!</p>
-            </div>
-            <button class="btn" onclick="createRoom()">🔑 Yangi Xona Yaratish va Kod Olish</button>
-            <div id="roomArea" style="display:none; text-align:center; background:#0f172a; padding:10px; border-radius:8px;">
-                <p style="margin:5px 0; color:#38bdf8; font-weight:bold;">Xona kodi: <span id="roomCode" style="color:#f59e0b; font-size:18px;">---</span></p>
-                <button class="btn btn-sec" onclick="shareRoom()">📩 Do'stga Havolani Yuborish</button>
-            </div>
-
-            <hr style="border: 0.5px solid #334155; width:100%; margin:10px 0;">
-
-            <div class="card-info">
-                <h4>🔗 Xonaga Ulanish</h4>
-            </div>
-            <input type="text" id="joinCodeInput" placeholder="Xona kodini kiriting (masalan: KB-8421)">
-            <button class="btn btn-sec" onclick="joinRoom()">🚀 Xonaga Ulanish</button>
-        </div>
-    </div>
-
-    <!-- INSTAGRAM PRANK -->
-    <div id="prank" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>📸 Instagram Prank (Terminal)</h4>
-                <p>Do'stingiz nikini kiriting va soxta kiber-xujum prankini ishga tushiring!</p>
-            </div>
-            <input type="text" id="instaNick" placeholder="Instagram username (@username)">
-            <button class="btn" onclick="startTerminalPrank()">🔥 Prankni Boshlash</button>
-            <div id="terminalBox" style="display:none; background:#000; color:#00ff00; font-family:monospace; padding:10px; border-radius:8px; font-size:11px; height:100px; overflow-y:auto; margin-top:8px;"></div>
-        </div>
-    </div>
-
-    <!-- DO'KON -->
+    <!-- 3. DO'KON BO'LIMI -->
     <div id="shop" class="section">
-        <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-            <div class="card-info"><h4>🛡 Qalqon</h4><p>Mag'lubiyatdan himoya</p></div>
-            <button class="btn" style="width:auto;" onclick="buyItem(30)">30 🪙</button>
+        <div class="card">
+            <div class="card-info">
+                <h4>🛒 Kiber Do'kon & Inventar</h4>
+                <p>O'yin winnings evaziga maxsus imkoniyatlarni xarid qiling.</p>
+            </div>
+            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
+                <div><h4 style="margin:0; font-size:13px;">🛡 Qalqon</h4><p style="margin:0; font-size:10px;">Mag'lubiyatdan himoya</p></div>
+                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(40)">40 🪙</button>
+            </div>
+            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
+                <div><h4 style="margin:0; font-size:13px;">💣 Bomba</h4><p style="margin:0; font-size:10px;">Botni portlatish</p></div>
+                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(40)">40 🪙</button>
+            </div>
+            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
+                <div><h4 style="margin:0; font-size:13px;">👑 VIP Unvon</h4><p style="margin:0; font-size:10px;">Elit status</p></div>
+                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(100)">100 🪙</button>
+            </div>
         </div>
-        <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-            <div class="card-info"><h4>💣 Bomba</h4><p>Qarshidosh kartasini kuydirish</p></div>
-            <button class="btn" style="width:auto;" onclick="buyItem(25)">25 🪙</button>
+    </div>
+
+    <!-- 4. REYTING BO'LIMI -->
+    <div id="rank" class="section">
+        <div class="card">
+            <div class="card-info">
+                <h4>🏆 Global Reyting Liderlari</h4>
+                <p>Eng ko'p koin to'plagan kiber-hakerlar ro'yxati</p>
+            </div>
+            <div class="rank-row"><span>1. 👑 CyberGhost</span> <span style="color:#f59e0b; font-weight:bold;">1,450 🪙</span></div>
+            <div class="rank-row"><span>2. 🥈 ZeroCool</span> <span style="color:#f59e0b; font-weight:bold;">1,200 🪙</span></div>
+            <div class="rank-row"><span>3. 🥉 NeoHack</span> <span style="color:#f59e0b; font-weight:bold;">980 🪙</span></div>
+            <div class="rank-row" style="border: 1px solid #00ff66;"><span>🔥 Siz (Player)</span> <span style="color:#00ff66; font-weight:bold;" id="myRankCoins">150 🪙</span></div>
         </div>
+    </div>
+
+    <!-- 5. INSTAGRAM AKAUNT CHOPISH -->
+    <div id="hack" class="section">
+        <div class="card">
+            <div class="card-info">
+                <h4>💀 Instagram Akaunt Chopish</h4>
+                <p>Target profelni kiriting va exploit orqali sessiyani egallang.</p>
+            </div>
+            <input type="text" id="instaNick" placeholder="Target: @username">
+            <button class="btn" onclick="startTerminalPrank()">💥 Eksplouitni Ishga Tushirish</button>
+            <div id="terminalBox" style="display:none; background:#000; color:#00ff66; font-family:monospace; padding:10px; border-radius:8px; font-size:11px; height:120px; overflow-y:auto; border:1px solid #00ff66;"></div>
+        </div>
+    </div>
+
+    <!-- PASTKI ASOSIY MENYU -->
+    <div class="bottom-nav">
+        <button class="b-nav-btn active" onclick="switchMainTab('games', this)"><span>🎮</span>O'yinlar</button>
+        <button class="b-nav-btn" onclick="switchMainTab('trading', this)"><span>📈</span>Trading</button>
+        <button class="b-nav-btn" onclick="switchMainTab('shop', this)"><span>🛒</span>Do'kon</button>
+        <button class="b-nav-btn" onclick="switchMainTab('rank', this)"><span>🏆</span>Reyting</button>
+        <button class="b-nav-btn" onclick="switchMainTab('hack', this)"><span>💀</span>Akaunt Chopish</button>
     </div>
 
     <!-- Ovozlar -->
@@ -168,175 +316,95 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        /* Matrix Canvas Fullscreen */
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrixChars = '0110010101011010010101010101010101';
+        const fontSize = 13;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(3, 7, 18, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff66';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 33);
+
         let coins = parseInt(localStorage.getItem('kiber_coins')) || 150;
         document.getElementById('coinCount').innerText = coins;
+        document.getElementById('myRankCoins').innerText = coins + " 🪙";
 
         function playSound(type) {
             let sound = type === 'win' ? document.getElementById('winSound') : document.getElementById('clickSound');
             if (sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
         }
 
-        function switchTab(tabId, btn) {
+        function switchMainTab(tabId, btn) {
             playSound('click');
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.b-nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
         }
 
-        /* --- MAU-MAU LOGIKASI --- */
-        const suits = ['♥️', '♦️', '♣️', '♠️'];
-        const values = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-        let currentTableCard = { suit: '♥️', value: '7' };
-        let myHand = [];
-        let botCardsCount = 4;
-
-        function getRandomCard() {
-            return {
-                suit: suits[Math.floor(Math.random() * suits.length)],
-                value: values[Math.floor(Math.random() * values.length)]
-            };
-        }
-
-        function resetMauGame() {
+        function switchGame(gameId, btn) {
             playSound('click');
-            currentTableCard = getRandomCard();
-            myHand = [getRandomCard(), getRandomCard(), getRandomCard(), getRandomCard()];
-            botCardsCount = 4;
-            renderMau();
+            document.querySelectorAll('.game-sub-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(gameId).classList.add('active');
+            btn.classList.add('active');
         }
 
-        function renderMau() {
-            let tableEl = document.getElementById('tableCard');
-            tableEl.innerText = `${currentTableCard.suit} ${currentTableCard.value}`;
-            tableEl.className = `card-item ${(currentTableCard.suit==='♥️'||currentTableCard.suit==='♦️')?'red':''}`;
-            document.getElementById('botCardCount').innerText = botCardsCount;
-
-            let myHandEl = document.getElementById('myCards');
-            myHandEl.innerHTML = '';
-            myHand.forEach((card, index) => {
-                let div = document.createElement('div');
-                div.className = `card-item ${(card.suit==='♥️'||card.suit==='♦️')?'red':''}`;
-                div.innerText = `${card.suit} ${card.value}`;
-                div.onclick = () => playCard(index);
-                myHandEl.appendChild(div);
-            });
-        }
-
-        function playCard(index) {
-            let card = myHand[index];
-            // Qoida: Rang yoki qiymat mos kelishi kerak
-            if (card.suit === currentTableCard.suit || card.value === currentTableCard.value) {
-                playSound('click');
-                currentTableCard = card;
-                myHand.splice(index, 1);
-                renderMau();
-
-                if (myHand.length === 0) {
+        function startMiniGame(gameName) {
+            playSound('click');
+            alert(gameName + " o'yini ishga tushdi...");
+            setTimeout(() => {
+                if (Math.random() > 0.3) {
+                    coins += 40;
                     playSound('win');
-                    coins += 25;
                     updateCoins();
-                    alert("🎉 MAV-MAU G'OLIBI! Siz botni yengdingiz va +25 🪙 oldingiz!");
-                    resetMauGame();
-                    return;
+                    alert("🎉 G'alaba! +40 🪙 qo'shildi!");
+                } else {
+                    alert("❌ Mag'lubiyat! Qaytadan urinib ko'ring.");
                 }
-                setTimeout(botTurn, 1000);
-            } else {
-                alert("❌ Bu kartani tashlab bo'lmaydi! Rang yoki raqam mos kelishi kerak.");
-            }
+            }, 1200);
         }
 
-        function drawCard() {
+        /* --- RULETKA LOGIKASI --- */
+        function spinRoulette(colorChoice) {
             playSound('click');
-            myHand.push(getRandomCard());
-            renderMau();
-            setTimeout(botTurn, 1000);
-        }
+            if (coins < 40) return alert("Ruletka o'ynash uchun kamida 40 🪙 kerak!");
+            coins -= 40;
+            updateCoins();
 
-        function botTurn() {
-            // Bot harakati
-            let chance = Math.random();
-            if (chance > 0.4) {
-                botCardsCount--;
-                currentTableCard = getRandomCard(); // Bot karta tashladi
-            } else {
-                botCardsCount++; // Bot baza oladi
-            }
+            let wheel = document.getElementById('rouletteWheel');
+            let resText = document.getElementById('rouletteResult');
+            resText.innerText = "🌀 Ruletka aylanmoqda...";
+            
+            let randomDeg = 1440 + Math.floor(Math.random() * 360);
+            wheel.style.transform = `rotate(${randomDeg}deg)`;
 
-            if (botCardsCount <= 0) {
-                alert("😔 Bot g'olib bo'ldi! Qaytadan urinib ko'ring.");
-                resetMauGame();
-            } else {
-                renderMau();
-            }
-        }
+            setTimeout(() => {
+                let winColor = Math.random() > 0.5 ? 'RED' : 'BLACK';
+                let num = Math.floor(Math.random() * 36);
+                wheel.innerText = num;
 
-        /* --- DO'ST BILAN O'YNASH --- */
-        let currentRoomCode = '';
-        function createRoom() {
-            playSound('click');
-            currentRoomCode = "KB-" + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('roomCode').innerText = currentRoomCode;
-            document.getElementById('roomArea').style.display = 'block';
-        }
-
-        function shareRoom() {
-            playSound('click');
-            let text = `Kel, Kiber Arena 1v1 jangi o'ynaymiz! Xona kodi: ${currentRoomCode}`;
-            let link = `https://t.me/share/url?url=https://t.me/KiberArenaBot&text=${encodeURIComponent(text)}`;
-            tg.openTelegramLink(link);
-        }
-
-        function joinRoom() {
-            playSound('click');
-            let code = document.getElementById('joinCodeInput').value.trim();
-            if (code.length > 3) {
-                alert(`✅ Xona (${code}) ga ulanildi! Raqib kutilmoqda...`);
-            } else {
-                alert("Iltimos, xona kodini kiriting!");
-            }
-        }
-
-        /* --- INSTAGRAM PRANK TERMINAL --- */
-        function startTerminalPrank() {
-            playSound('click');
-            let nick = document.getElementById('instaNick').value.trim();
-            if (!nick) return alert("Nikni kiriting!");
-
-            let box = document.getElementById('terminalBox');
-            box.style.display = 'block';
-            box.innerHTML = `[>] Target qidirilmoqda: ${nick}...<br>`;
-
-            let logs = [
-                `[+] Instagram API serverlariga ulanmoqda...`,
-                `[+] Handshake muvaffaqiyatli!`,
-                `[!] Exploit payload yuborilmoqda: ${nick}`,
-                `[+] Direct Message fake notify generate qilindi!`,
-                `[SUCCESS] ${nick} uchun Prank xabari yetkazildi! 😎`
-            ];
-
-            logs.forEach((log, i) => {
-                setTimeout(() => {
-                    box.innerHTML += `${log}<br>`;
-                    box.scrollTop = box.scrollHeight;
-                    if (i === logs.length - 1) playSound('win');
-                }, (i + 1) * 1000);
-            });
-        }
-
-        function buyItem(price) {
-            playSound('click');
-            if (coins >= price) { coins -= price; updateCoins(); alert("Xarid qilindi! ✅"); }
-            else { alert("Tangalar yetarli emas! ❌"); }
-        }
-
-        function updateCoins() {
-            document.getElementById('coinCount').innerText = coins;
-            localStorage.setItem('kiber_coins', coins);
-        }
-
-        // Boshlanishda Mau-Mau ni tayyorlash
-        resetMauGame();
-    </script>
-</body>
-</html>
+                if (colorChoice === winColor) {
+                    coins += 80;
+                    playSound('win');
+                    updateCoins();
+                    resText.innerText = `🎉 Tabriklaymiz! ${num} (${winColor}) tushdi. +80 🪙 yutdingiz!`;
+                } else {
+                    resText.innerText = `❌ ${
