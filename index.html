@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiber Arena</title>
+    <title>Kiber Arena - Pro Games</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -17,43 +17,59 @@
             color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         .header {
-            width: 100%;
-            max-width: 380px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            width: 100%; max-width: 400px; display: flex; justify-content: space-between;
+            align-items: center; background: var(--card-bg); padding: 10px 15px; border-radius: 12px;
+            margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 1px solid #1e293b;
         }
         .coins { background: #f59e0b; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        .nav { display: flex; gap: 6px; width: 100%; max-width: 380px; margin-bottom: 15px; }
+        
+        .nav { display: flex; gap: 4px; width: 100%; max-width: 400px; margin-bottom: 12px; }
         .nav-btn {
-            flex: 1; padding: 10px 5px; background: #1e293b; border: 1px solid #334155;
-            color: white; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; text-align: center;
+            flex: 1; padding: 8px 2px; background: #1e293b; border: 1px solid #334155;
+            color: white; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; text-align: center;
         }
         .nav-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
-        .section { display: none; width: 100%; max-width: 380px; flex-direction: column; gap: 10px; }
+        
+        .section { display: none; width: 100%; max-width: 400px; flex-direction: column; gap: 10px; }
         .section.active { display: flex; }
+        
         .card {
             background: var(--card-bg); padding: 12px 15px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid #1e293b;
+            display: flex; flex-direction: column; gap: 8px; border: 1px solid #1e293b;
         }
-        .card-info h4 { margin: 0 0 5px 0; font-size: 15px; color: #38bdf8; }
-        .card-info p { margin: 0; font-size: 12px; color: #94a3b8; }
-        .buy-btn {
-            background: #22c55e; color: white; border: none; padding: 6px 12px;
-            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;
+        .card-info h4 { margin: 0 0 4px 0; font-size: 15px; color: #38bdf8; }
+        .card-info p { margin: 0; font-size: 11px; color: #94a3b8; }
+        
+        .btn {
+            background: #22c55e; color: white; border: none; padding: 10px;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; width: 100%; text-align: center;
         }
-        .buy-btn:active { transform: scale(0.95); }
+        .btn-sec { background: #3b82f6; }
+        .btn:active { transform: scale(0.98); }
+        
+        input {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155;
+            background: #0f172a; color: white; outline: none; box-sizing: border-box;
+        }
+
+        /* Mau-Mau Game Styles */
+        .game-board {
+            background: #064e3b; border-radius: 12px; padding: 15px; text-align: center; border: 2px solid #10b981;
+        }
+        .cards-container { display: flex; gap: 8px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+        .card-item {
+            width: 45px; height: 65px; background: white; color: black; border-radius: 6px;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px;
+            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5); user-select: none;
+        }
+        .card-item.red { color: #dc2626; }
+        .card-back { background: #1e3a8a; color: white; border: 1px solid white; }
     </style>
 </head>
 <body>
@@ -63,46 +79,88 @@
         <div class="coins">🪙 <span id="coinCount">150</span></div>
     </div>
 
+    <!-- Navigatsiya -->
     <div class="nav">
-        <button class="nav-btn active" onclick="switchTab('shashka', this)">Shashka</button>
-        <button class="nav-btn" onclick="switchTab('mau', this)">Mau-Mau</button>
-        <button class="nav-btn" onclick="switchTab('shop', this)">Do'kon</button>
-        <button class="nav-btn" onclick="switchTab('ref', this)">Taklif</button>
+        <button class="nav-btn active" onclick="switchTab('mau', this)">🎴 Mau-Mau</button>
+        <button class="nav-btn" onclick="switchTab('vs', this)">⚔️ 1v1 Do'st</button>
+        <button class="nav-btn" onclick="switchTab('prank', this)">📸 Prank</button>
+        <button class="nav-btn" onclick="switchTab('shop', this)">🛒 Do'kon</button>
     </div>
 
-    <!-- Shashka bo'limi -->
-    <div id="shashka" class="section active">
+    <!-- MAU-MAU KARTA O'YINI -->
+    <div id="mau" class="section active">
         <div class="card">
-            <div class="card-info"><h4>Botga qarshi</h4><p>G‘alaba uchun +25 🪙 beriladi</p></div>
-            <button class="buy-btn" onclick="playGame('Shashka')">O'ynash</button>
+            <div class="card-info">
+                <h4>🎴 Mau-Mau Karta Jangi</h4>
+                <p>Top kartaga rang yoki raqam bo'yicha mos karta tashlang. G'alaba: +25 🪙</p>
+            </div>
+            
+            <div class="game-board">
+                <div style="color: #a7f3d0; font-size: 12px; margin-bottom: 5px;">Bot Kartalari: <span id="botCardCount">4</span> ta</div>
+                
+                <div style="margin: 15px 0;">
+                    <span style="font-size: 12px; color: #cbd5e1;">Stoldagi Karta:</span>
+                    <div id="tableCard" class="card-item" style="margin: 5px auto;">♥️ 7</div>
+                </div>
+
+                <div style="color: #a7f3d0; font-size: 12px;">Sizning Kartalaringiz:</div>
+                <div id="myCards" class="cards-container"></div>
+
+                <button class="btn btn-sec" style="margin-top: 5px;" onclick="drawCard()">🎴 Baza (Deck) dan karta olish</button>
+            </div>
+            <button class="btn" onclick="resetMauGame()">🔄 Qaytadan Boshlash</button>
         </div>
     </div>
 
-    <!-- Mau-Mau bo'limi -->
-    <div id="mau" class="section">
+    <!-- 1v1 DO'ST BILAN O'YNASH -->
+    <div id="vs" class="section">
         <div class="card">
-            <div class="card-info"><h4>Karta jangi</h4><p>G‘alaba uchun +25 🪙 beriladi</p></div>
-            <button class="buy-btn" onclick="playGame('Mau-Mau')">O'ynash</button>
+            <div class="card-info">
+                <h4>👥 Do'st Bilan 1v1 Xona Yaratish</h4>
+                <p>Maxsus xona kodi bilan do'stingiz bilan belashib o'ynang!</p>
+            </div>
+            <button class="btn" onclick="createRoom()">🔑 Yangi Xona Yaratish va Kod Olish</button>
+            <div id="roomArea" style="display:none; text-align:center; background:#0f172a; padding:10px; border-radius:8px;">
+                <p style="margin:5px 0; color:#38bdf8; font-weight:bold;">Xona kodi: <span id="roomCode" style="color:#f59e0b; font-size:18px;">---</span></p>
+                <button class="btn btn-sec" onclick="shareRoom()">📩 Do'stga Havolani Yuborish</button>
+            </div>
+
+            <hr style="border: 0.5px solid #334155; width:100%; margin:10px 0;">
+
+            <div class="card-info">
+                <h4>🔗 Xonaga Ulanish</h4>
+            </div>
+            <input type="text" id="joinCodeInput" placeholder="Xona kodini kiriting (masalan: KB-8421)">
+            <button class="btn btn-sec" onclick="joinRoom()">🚀 Xonaga Ulanish</button>
         </div>
     </div>
 
-    <!-- Do'kon bo'limi -->
+    <!-- INSTAGRAM PRANK -->
+    <div id="prank" class="section">
+        <div class="card">
+            <div class="card-info">
+                <h4>📸 Instagram Prank (Terminal)</h4>
+                <p>Do'stingiz nikini kiriting va soxta kiber-xujum prankini ishga tushiring!</p>
+            </div>
+            <input type="text" id="instaNick" placeholder="Instagram username (@username)">
+            <button class="btn" onclick="startTerminalPrank()">🔥 Prankni Boshlash</button>
+            <div id="terminalBox" style="display:none; background:#000; color:#00ff00; font-family:monospace; padding:10px; border-radius:8px; font-size:11px; height:100px; overflow-y:auto; margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <!-- DO'KON -->
     <div id="shop" class="section">
-        <div class="card"><div class="card-info"><h4>🛡 Qalqon</h4><p>Bir marta yutqazmaslik</p></div><button class="buy-btn" onclick="buyItem(30)">30 🪙</button></div>
-        <div class="card"><div class="card-info"><h4>💣 Bomba</h4><p>Botning 3 ta toshini yiqitish</p></div><button class="buy-btn" onclick="buyItem(25)">25 🪙</button></div>
-        <div class="card"><div class="card-info"><h4>👑 Tojvor</h4><p>VIP unvon - ramziy</p></div><button class="buy-btn" onclick="buyItem(50)">50 🪙</button></div>
-        <div class="card"><div class="card-info"><h4>⚡ 2X Bonus</h4><p>Keyingi g'alabada 2x tanga</p></div><button class="buy-btn" onclick="buyItem(40)">40 🪙</button></div>
-    </div>
-
-    <!-- Taklif bo'limi -->
-    <div id="ref" class="section">
-        <div class="card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-            <div class="card-info"><h4>👥 Do'st taklif qilish</h4><p>Har bir taklif qilingan do'st uchun ikkalangizga ham <b>+20 tanga</b> beriladi!</p></div>
-            <button class="buy-btn" style="width: 100%;" onclick="copyRef()">Havoladan nusxa olish</button>
+        <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center;">
+            <div class="card-info"><h4>🛡 Qalqon</h4><p>Mag'lubiyatdan himoya</p></div>
+            <button class="btn" style="width:auto;" onclick="buyItem(30)">30 🪙</button>
+        </div>
+        <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center;">
+            <div class="card-info"><h4>💣 Bomba</h4><p>Qarshidosh kartasini kuydirish</p></div>
+            <button class="btn" style="width:auto;" onclick="buyItem(25)">25 🪙</button>
         </div>
     </div>
 
-    <!-- Ovoz effektlari -->
+    <!-- Ovozlar -->
     <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
 
@@ -115,10 +173,7 @@
 
         function playSound(type) {
             let sound = type === 'win' ? document.getElementById('winSound') : document.getElementById('clickSound');
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log(e));
-            }
+            if (sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
         }
 
         function switchTab(tabId, btn) {
@@ -129,26 +184,150 @@
             btn.classList.add('active');
         }
 
-        function playGame(gameName) {
+        /* --- MAU-MAU LOGIKASI --- */
+        const suits = ['♥️', '♦️', '♣️', '♠️'];
+        const values = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        let currentTableCard = { suit: '♥️', value: '7' };
+        let myHand = [];
+        let botCardsCount = 4;
+
+        function getRandomCard() {
+            return {
+                suit: suits[Math.floor(Math.random() * suits.length)],
+                value: values[Math.floor(Math.random() * values.length)]
+            };
+        }
+
+        function resetMauGame() {
             playSound('click');
-            let won = confirm(gameName + " o'yini boshlandi. G'alaba qozonsangiz OK tugmasini bosing (+25 tanga olish uchun).");
-            if (won) {
-                coins += 25;
-                playSound('win');
-                updateCoins();
-                alert("Tabriklaymiz! Siz g'alaba qozondingiz va +25 🪙 qo'lga kiritdingiz!");
+            currentTableCard = getRandomCard();
+            myHand = [getRandomCard(), getRandomCard(), getRandomCard(), getRandomCard()];
+            botCardsCount = 4;
+            renderMau();
+        }
+
+        function renderMau() {
+            let tableEl = document.getElementById('tableCard');
+            tableEl.innerText = `${currentTableCard.suit} ${currentTableCard.value}`;
+            tableEl.className = `card-item ${(currentTableCard.suit==='♥️'||currentTableCard.suit==='♦️')?'red':''}`;
+            document.getElementById('botCardCount').innerText = botCardsCount;
+
+            let myHandEl = document.getElementById('myCards');
+            myHandEl.innerHTML = '';
+            myHand.forEach((card, index) => {
+                let div = document.createElement('div');
+                div.className = `card-item ${(card.suit==='♥️'||card.suit==='♦️')?'red':''}`;
+                div.innerText = `${card.suit} ${card.value}`;
+                div.onclick = () => playCard(index);
+                myHandEl.appendChild(div);
+            });
+        }
+
+        function playCard(index) {
+            let card = myHand[index];
+            // Qoida: Rang yoki qiymat mos kelishi kerak
+            if (card.suit === currentTableCard.suit || card.value === currentTableCard.value) {
+                playSound('click');
+                currentTableCard = card;
+                myHand.splice(index, 1);
+                renderMau();
+
+                if (myHand.length === 0) {
+                    playSound('win');
+                    coins += 25;
+                    updateCoins();
+                    alert("🎉 MAV-MAU G'OLIBI! Siz botni yengdingiz va +25 🪙 oldingiz!");
+                    resetMauGame();
+                    return;
+                }
+                setTimeout(botTurn, 1000);
+            } else {
+                alert("❌ Bu kartani tashlab bo'lmaydi! Rang yoki raqam mos kelishi kerak.");
             }
+        }
+
+        function drawCard() {
+            playSound('click');
+            myHand.push(getRandomCard());
+            renderMau();
+            setTimeout(botTurn, 1000);
+        }
+
+        function botTurn() {
+            // Bot harakati
+            let chance = Math.random();
+            if (chance > 0.4) {
+                botCardsCount--;
+                currentTableCard = getRandomCard(); // Bot karta tashladi
+            } else {
+                botCardsCount++; // Bot baza oladi
+            }
+
+            if (botCardsCount <= 0) {
+                alert("😔 Bot g'olib bo'ldi! Qaytadan urinib ko'ring.");
+                resetMauGame();
+            } else {
+                renderMau();
+            }
+        }
+
+        /* --- DO'ST BILAN O'YNASH --- */
+        let currentRoomCode = '';
+        function createRoom() {
+            playSound('click');
+            currentRoomCode = "KB-" + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('roomCode').innerText = currentRoomCode;
+            document.getElementById('roomArea').style.display = 'block';
+        }
+
+        function shareRoom() {
+            playSound('click');
+            let text = `Kel, Kiber Arena 1v1 jangi o'ynaymiz! Xona kodi: ${currentRoomCode}`;
+            let link = `https://t.me/share/url?url=https://t.me/KiberArenaBot&text=${encodeURIComponent(text)}`;
+            tg.openTelegramLink(link);
+        }
+
+        function joinRoom() {
+            playSound('click');
+            let code = document.getElementById('joinCodeInput').value.trim();
+            if (code.length > 3) {
+                alert(`✅ Xona (${code}) ga ulanildi! Raqib kutilmoqda...`);
+            } else {
+                alert("Iltimos, xona kodini kiriting!");
+            }
+        }
+
+        /* --- INSTAGRAM PRANK TERMINAL --- */
+        function startTerminalPrank() {
+            playSound('click');
+            let nick = document.getElementById('instaNick').value.trim();
+            if (!nick) return alert("Nikni kiriting!");
+
+            let box = document.getElementById('terminalBox');
+            box.style.display = 'block';
+            box.innerHTML = `[>] Target qidirilmoqda: ${nick}...<br>`;
+
+            let logs = [
+                `[+] Instagram API serverlariga ulanmoqda...`,
+                `[+] Handshake muvaffaqiyatli!`,
+                `[!] Exploit payload yuborilmoqda: ${nick}`,
+                `[+] Direct Message fake notify generate qilindi!`,
+                `[SUCCESS] ${nick} uchun Prank xabari yetkazildi! 😎`
+            ];
+
+            logs.forEach((log, i) => {
+                setTimeout(() => {
+                    box.innerHTML += `${log}<br>`;
+                    box.scrollTop = box.scrollHeight;
+                    if (i === logs.length - 1) playSound('win');
+                }, (i + 1) * 1000);
+            });
         }
 
         function buyItem(price) {
             playSound('click');
-            if (coins >= price) {
-                coins -= price;
-                updateCoins();
-                alert("Muvaffaqiyatli xarid qilindi! ✅");
-            } else {
-                alert("Tangalaringiz yetarli emas! ❌ Do'stlaringizni taklif qilib tanga yig'ing (+20 🪙).");
-            }
+            if (coins >= price) { coins -= price; updateCoins(); alert("Xarid qilindi! ✅"); }
+            else { alert("Tangalar yetarli emas! ❌"); }
         }
 
         function updateCoins() {
@@ -156,11 +335,8 @@
             localStorage.setItem('kiber_coins', coins);
         }
 
-        function copyRef() {
-            playSound('click');
-            navigator.clipboard.writeText("https://t.me/KiberArenaBot?start=ref");
-            alert("Referal havola nusxalandi! Do'stlaringizga yuboring (+20 tanga oling).");
-        }
+        // Boshlanishda Mau-Mau ni tayyorlash
+        resetMauGame();
     </script>
 </body>
 </html>
