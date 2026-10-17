@@ -1,668 +1,1468 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiber Arena - Hacker Edition</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #030712;
-            --card-bg: rgba(10, 15, 30, 0.9);
-            --text-color: #00ff66;
-            --accent-color: #00ff66;
-            --border-glow: #00ff66;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Kiber Arena</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#070b14;--surface:#0d1525;--card:#111e33;--border:#1e3a5f;
+  --accent:#00d4ff;--gold:#ffd700;--success:#00ff88;--danger:#ff3366;
+  --purple:#a855f7;--text:#e0f0ff;--muted:#5a7a9a;
+  --fd:'Orbitron',monospace;--fb:'Rajdhani',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width:440px;margin:0 auto;padding:0 0 80px;overflow-x:hidden;font-size:15px}
 
-        body {
-            background-color: var(--bg-color);
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 75px;
-        }
+/* ── OVERLAY SCREENS ── */
+.screen{position:fixed;inset:0;z-index:8000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
+.screen.hidden{display:none!important}
 
-        #bgCanvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3;
-        }
+/* Nick */
+.nick-logo{font-family:var(--fd);font-size:26px;font-weight:900;color:var(--accent);text-shadow:0 0 30px var(--accent);letter-spacing:4px;margin-bottom:6px}
+.nick-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.av-row{display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.av{font-size:30px;cursor:pointer;padding:8px;border-radius:10px;border:2px solid transparent;transition:.2s}
+.av.on{border-color:var(--accent);background:rgba(0,212,255,.15);transform:scale(1.1)}
+.nick-inp{width:100%;max-width:280px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--fb);font-size:16px;outline:none;text-align:center;margin-bottom:14px}
+.nick-inp:focus{border-color:var(--accent)}
+.primary-btn{width:100%;max-width:280px;padding:14px;background:linear-gradient(135deg,#0055aa,var(--accent));border:none;border-radius:12px;color:#fff;font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,.3)}
 
-        .header {
-            width: 100%; max-width: 400px; display: flex; justify-content: space-between;
-            align-items: center; background: var(--card-bg); padding: 10px 15px; border-radius: 12px;
-            margin-bottom: 12px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.25); border: 1px solid var(--border-glow);
-            backdrop-filter: blur(8px);
-        }
-        .header h3 { color: var(--accent-color); margin: 0; text-shadow: 0 0 8px #00ff66; font-size: 14px; }
-        .coins { background: #f59e0b; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; box-shadow: 0 0 10px #f59e0b; }
-        
-        .section { display: none; width: 100%; max-width: 400px; flex-direction: column; gap: 10px; }
-        .section.active { display: flex; }
-        
-        .card {
-            background: var(--card-bg); padding: 12px 15px; border-radius: 12px;
-            display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(0, 255, 102, 0.4);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-        }
-        .card-info h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--accent-color); text-shadow: 0 0 5px #00ff66; }
-        .card-info p { margin: 0; font-size: 11px; color: #94a3b8; }
-        
-        .btn {
-            background: #00ff66; color: #000; border: none; padding: 10px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; width: 100%; text-align: center;
-            font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
-            text-decoration: none; display: block; box-sizing: border-box;
-        }
-        .btn-sec { background: #3b82f6; color: white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        .btn-danger { background: #ef4444; color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-        .btn:active { transform: scale(0.98); }
-        
-        input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #00ff66;
-            background: #000000; color: #00ff66; outline: none; box-sizing: border-box;
-            font-family: 'Courier New', Courier, monospace;
-        }
+/* Sub */
+#sub-screen .sub-icon{font-size:52px;margin-bottom:14px}
+#sub-screen h2{font-family:var(--fd);font-size:17px;color:var(--accent);margin-bottom:6px;letter-spacing:2px}
+#sub-screen p{color:var(--text);font-size:13px;margin-bottom:4px}
+#sub-screen .gold{color:var(--gold);font-weight:700;margin-bottom:20px}
+.sub-link{display:block;width:100%;max-width:280px;padding:14px;background:linear-gradient(135deg,#0088cc,#00aae4);color:#fff;border-radius:12px;font-family:var(--fd);font-size:12px;font-weight:700;text-decoration:none;letter-spacing:1px;margin-bottom:10px;text-align:center;box-shadow:0 0 20px rgba(0,136,204,.4)}
+.sub-btn{width:100%;max-width:280px;padding:11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-family:var(--fb);font-size:13px;cursor:pointer;display:none}
+#sub-err{color:var(--danger);font-size:12px;margin-top:10px;min-height:16px}
 
-        .sub-nav { display: flex; gap: 3px; margin-bottom: 5px; flex-wrap: wrap; }
-        .sub-btn {
-            flex: 1 1 30%; padding: 6px 2px; background: #0f172a; border: 1px solid #00ff66; color: #00ff66;
-            border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; text-align: center;
-        }
-        .sub-btn.active { background: #00ff66; color: #000; }
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.logo{font-family:var(--fd);font-size:13px;font-weight:900;color:var(--accent);letter-spacing:2px;text-shadow:0 0 12px var(--accent)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.coin-badge{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#1a2a00,#2a4000);border:1px solid var(--gold);border-radius:20px;padding:4px 11px;font-family:var(--fd);font-size:12px;color:var(--gold)}
+.user-chip{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600}
 
-        .game-sub-section { display: none; flex-direction: column; gap: 8px; }
-        .game-sub-section.active { display: flex; }
+/* ── NAV ── */
+.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px 16px;background:var(--bg);position:sticky;top:49px;z-index:99;border-bottom:1px solid var(--border)}
+.nb{background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--muted);font-family:var(--fb);font-size:9px;font-weight:600;padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:.2s;letter-spacing:.3px}
+.nb .ic{font-size:16px}
+.nb.on{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent)}
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(3, 7, 18, 0.95);
-            border-top: 1px solid #00ff66; display: flex; justify-content: space-around; padding: 8px 0;
-            backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 -5px 15px rgba(0,255,102,0.2);
-        }
-        .b-nav-btn {
-            background: none; border: none; color: #94a3b8; font-size: 8px; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        .b-nav-btn span { font-size: 14px; }
-        .b-nav-btn.active { color: #00ff66; text-shadow: 0 0 8px #00ff66; }
+/* ── PANELS ── */
+.panel{display:none;padding:12px 16px}
+.panel.on{display:block}
+.gtitle{font-family:var(--fd);font-size:14px;font-weight:900;color:var(--accent);letter-spacing:2px;text-align:center;margin:12px 0 10px}
 
-        .game-board {
-            background: rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 12px; text-align: center; border: 2px solid #00ff66;
-        }
-        .cards-container { display: flex; gap: 6px; justify-content: center; margin: 8px 0; flex-wrap: wrap; }
-        .card-item {
-            width: 40px; height: 58px; background: white; color: black; border-radius: 5px;
-            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 15px;
-            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5); user-select: none;
-        }
-        .card-item.red { color: #dc2626; }
+/* ── CARDS / BUTTONS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.btn{background:linear-gradient(135deg,#003366,#0055aa);border:1px solid var(--accent);border-radius:9px;color:var(--text);font-family:var(--fb);font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn.g{background:linear-gradient(135deg,#003300,#005500);border-color:var(--success);color:var(--success)}
+.btn.r{background:linear-gradient(135deg,#330011,#550022);border-color:var(--danger);color:var(--danger)}
+.btn.gold{background:linear-gradient(135deg,#332200,#554400);border-color:var(--gold);color:var(--gold)}
+.btn.full{width:100%}
+.btn.purple{background:linear-gradient(135deg,#2d1b69,#4c1d95);border-color:var(--purple);color:var(--purple)}
+.row{display:flex;gap:8px}
 
-        .rank-row { display: flex; justify-content: space-between; padding: 8px 10px; background: #0f172a; border-radius: 6px; border: 1px solid #1e293b; font-size: 12px; margin-bottom: 5px; }
+/* ── TOGGLE ── */
+.tgl{display:flex;gap:4px;background:var(--surface);border-radius:9px;padding:3px;margin-bottom:10px}
+.tb{flex:1;padding:7px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:var(--fb);font-size:12px;font-weight:600;cursor:pointer;transition:.2s}
+.tb.on{background:var(--card);color:var(--accent);border:1px solid var(--accent)}
 
-        .chart-box {
-            background: #000; border: 1px solid #00ff66; border-radius: 8px; height: 120px;
-            display: flex; align-items: flex-end; justify-content: space-between; padding: 10px; box-sizing: border-box; overflow: hidden;
-        }
-        .chart-bar { width: 8%; background: #00ff66; border-radius: 2px 2px 0 0; transition: height 0.3s; }
-        .chart-bar.down { background: #ef4444; }
+/* ── LOBBY ── */
+.lobby{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:10px}
+.room-code{font-family:var(--fd);font-size:26px;font-weight:900;color:var(--gold);letter-spacing:6px;text-align:center;padding:10px;background:var(--card);border-radius:9px;margin-bottom:8px}
+.room-inp{width:100%;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--fd);font-size:16px;letter-spacing:4px;text-align:center;outline:none;margin-bottom:8px}
+.room-inp:focus{border-color:var(--accent)}
+.opp-bar{display:flex;align-items:center;gap:8px;background:rgba(0,255,136,.08);border:1px solid var(--success);border-radius:8px;padding:7px 11px;margin-bottom:8px}
+.opp-dot{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-        .roulette-wheel {
-            width: 100px; height: 100px; border-radius: 50%; border: 4px solid #00ff66;
-            margin: 10px auto; display: flex; justify-content: center; align-items: center;
-            font-size: 24px; font-weight: bold; background: #000; color: #00ff66;
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5); transition: transform 2s ease-out;
-        }
-    </style>
+/* ── CHECKERS ── */
+#ch-board{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;max-width:320px;margin:0 auto 10px;border:2px solid var(--accent);border-radius:6px;overflow:hidden;box-shadow:0 0 20px rgba(0,212,255,.2)}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.dk{background:#0d1f0d}.lt{background:#1a3a1a}
+.cell.sel{background:rgba(0,212,255,.35)!important}
+.cell.hint::after{content:'';position:absolute;width:35%;height:35%;border-radius:50%;background:var(--gold);opacity:.7}
+.piece{width:80%;height:80%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.15s;user-select:none}
+.piece:hover{transform:scale(1.08)}
+.pr{background:radial-gradient(circle at 35% 35%,#ff6666,#cc0000);border:2px solid #ff3333;box-shadow:0 2px 8px rgba(200,0,0,.5)}
+.pb{background:radial-gradient(circle at 35% 35%,#4488ff,#0044cc);border:2px solid #2266ff;box-shadow:0 2px 8px rgba(0,50,200,.5)}
+.piece.king::after{content:'♛';font-size:10px;color:var(--gold);position:absolute}
+.piece.sel-p{border:2px solid var(--gold)!important;box-shadow:0 0 12px var(--gold)!important}
+
+/* ── CHESS ── */
+#chess-board{display:grid;grid-template-columns:repeat(8,1fr);gap:0;max-width:320px;margin:0 auto 10px;border:2px solid var(--accent);border-radius:6px;overflow:hidden;box-shadow:0 0 20px rgba(0,212,255,.2)}
+.sq{aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;position:relative;transition:.1s}
+.sq.w{background:#1a3a1a}.sq.b{background:#0d1f0d}
+.sq.sel-sq{background:rgba(0,212,255,.4)!important}
+.sq.hint-sq::after{content:'';position:absolute;width:32%;height:32%;border-radius:50%;background:var(--gold);opacity:.75}
+.sq.last-sq{background:rgba(255,215,0,.2)!important}
+
+/* ── SEA BATTLE ── */
+.sb-grids{display:flex;flex-direction:column;gap:12px;align-items:center;margin-bottom:10px}
+.sb-board-wrap{text-align:center}
+.sb-board-lbl{font-size:11px;color:var(--muted);margin-bottom:4px;font-family:var(--fd)}
+.sb-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:1px;width:260px;height:260px;border:2px solid var(--accent);border-radius:4px;background:var(--surface);margin:0 auto}
+.sb-cell{aspect-ratio:1;background:#051326;border:1px solid rgba(0,212,255,.1);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:.1s}
+.sb-cell.ship{background:#1a3a5f;border-color:var(--accent)}
+.sb-cell.hit{background:var(--danger)!important;color:#fff}
+.sb-cell.miss{background:var(--muted)!important;opacity:.4}
+
+/* ── MAU-MAU ── */
+.mcard{min-width:46px;height:66px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:.15s;user-select:none;padding:4px}
+.mcard:active{transform:translateY(-5px) scale(1.05)}
+.mcard.dis{opacity:.4;cursor:not-allowed}
+.mcard.r{background:linear-gradient(160deg,#1a0000,#330000);color:#ff5555;border:1px solid #661111}
+.mcard.b{background:linear-gradient(160deg,#00001a,#000033);color:#5599ff;border:1px solid #112266}
+.mcard.joker{background:linear-gradient(160deg,#1a1400,#2a2000);color:var(--gold);border:1px solid #554400}
+.table-card{width:64px;height:90px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 8px;box-shadow:0 4px 12px rgba(0,0,0,.5);font-weight:700;font-size:18px}
+
+/* ── TIC TAC TOE ── */
+#ttt-board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin:0 auto 10px}
+.tc{aspect-ratio:1;background:var(--surface);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;transition:.15s}
+.tc:hover{border-color:var(--accent)}
+.tc.x{color:var(--accent)}.tc.o{color:var(--danger)}
+
+/* ── RPS ── */
+.rps-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.rps-side{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center}
+.rps-em{font-size:50px;min-height:62px;display:flex;align-items:center;justify-content:center}
+.rps-btns{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.rps-btn{font-size:34px;padding:12px 16px;background:var(--card);border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:.2s}
+.rps-btn:active{transform:scale(.88)}
+
+/* ── STATUS ── */
+.status-line{text-align:center;font-family:var(--fd);font-size:11px;color:var(--accent);margin:6px 0;min-height:18px}
+.score-bar{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px;margin-bottom:8px;font-family:var(--fd);font-size:12px}
+
+/* ── PROFILE ── */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat-val{font-family:var(--fd);font-size:18px;font-weight:900;color:var(--gold)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.xp-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#0088ff);transition:width .5s}
+.lb-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border-radius:9px;margin-bottom:5px;border:1px solid var(--border)}
+.lb-rank{font-family:var(--fd);font-size:13px;color:var(--muted);width:22px}
+.lb-name{flex:1;font-weight:600;font-size:13px}
+.lb-sc{font-family:var(--fd);font-size:12px;color:var(--gold)}
+
+/* ── SHOP ── */
+.shop-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:7px}
+.shop-ico{font-size:30px}
+.shop-info{flex:1}
+.shop-nm{font-weight:700;font-size:13px}
+.shop-ds{font-size:11px;color:var(--muted)}
+
+/* ── HELP ── */
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden}
+.faq-q{padding:12px 14px;cursor:pointer;font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.faq-q:hover{color:var(--accent)}
+.faq-a{padding:0 14px;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;font-size:13px;color:var(--muted);line-height:1.5}
+.faq-a.open{max-height:200px;padding:0 14px 12px}
+.contact-card{background:linear-gradient(135deg,#001a33,#002244);border:1px solid var(--accent);border-radius:12px;padding:16px;text-align:center;margin-bottom:10px}
+
+/* ── ADMIN ── */
+.admin-stat{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.adm-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.adm-val{font-family:var(--fd);font-size:22px;font-weight:900;color:var(--accent)}
+.adm-lbl{font-size:11px;color:var(--muted);margin-top:3px}
+.user-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border-radius:9px;margin-bottom:5px;border:1px solid var(--border)}
+.user-av{font-size:20px}
+.user-info-col{flex:1}
+.user-nm{font-weight:700;font-size:13px}
+.user-dt{font-size:11px;color:var(--muted)}
+.user-coins{font-family:var(--fd);font-size:12px;color:var(--gold)}
+.badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-family:var(--fd);font-weight:700}
+.badge.online{background:rgba(0,255,136,.15);border:1px solid var(--success);color:var(--success)}
+.badge.offline{background:rgba(90,122,154,.1);border:1px solid var(--muted);color:var(--muted)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(0,20,40,.96);border:1px solid var(--accent);border-radius:10px;padding:9px 18px;font-family:var(--fd);font-size:12px;color:var(--accent);opacity:0;transition:.3s;z-index:9999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+#modal{position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:24px}
+#modal.show{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--accent);border-radius:14px;padding:20px;width:100%;max-width:320px;text-align:center}
+.modal-title{font-family:var(--fd);font-size:16px;color:var(--accent);margin-bottom:10px}
+.modal-body{font-size:14px;color:var(--text);margin-bottom:16px;line-height:1.5}
+.modal-btns{display:flex;gap:8px}
+
+/* AI thinking */
+.ai-think{text-align:center;color:var(--muted);font-size:12px;padding:6px;display:none}
+.ai-think.show{display:block}
+</style>
 </head>
 <body>
 
-    <canvas id="bgCanvas"></canvas>
+<!-- ═══ NICK SCREEN ═══ -->
+<div class="screen" id="nick-screen">
+  <div class="nick-logo">⚡ KIBER ARENA</div>
+  <div class="nick-sub">Nickname va avatarni tanlang</div>
+  <div class="av-row">
+    <div class="av on" data-av="🎮">🎮</div>
+    <div class="av" data-av="🔥">🔥</div>
+    <div class="av" data-av="⚡">⚡</div>
+    <div class="av" data-av="🤖">🤖</div>
+    <div class="av" data-av="👾">👾</div>
+    <div class="av" data-av="💀">💀</div>
+  </div>
+  <input class="nick-inp" id="nick-inp" maxlength="12" placeholder="Nicknamingiz..." autocomplete="off">
+  <button class="primary-btn" onclick="doNick()">▶ KIRISH</button>
+</div>
 
-    <div class="header">
-        <h3>⚡ KIBER ARENA [SECURE]</h3>
-        <div class="coins">🪙 <span id="coinCount">150</span></div>
+<!-- ═══ SUB SCREEN ═══ -->
+<div class="screen hidden" id="sub-screen">
+  <div class="sub-icon">📢</div>
+  <h2>OBUNA KERAK</h2>
+  <p>O'yinlarga kirish uchun</p>
+  <div class="gold">kanalga obuna bo'ling!</div>
+  <a class="sub-link" id="sub-link" href="https://t.me/+PctCJlNSblg4NjEy" target="_blank" onclick="setTimeout(()=>document.getElementById('sub-cbtn').style.display='block',2500)">
+    📢 KANALGA O'TISH →
+  </a>
+  <button class="sub-btn" id="sub-cbtn" onclick="checkSub()">✅ Obuna bo'ldim, tekshir</button>
+  <div id="sub-err"></div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app" style="display:none">
+
+<div class="hdr">
+  <div class="logo">⚡ KIBER ARENA</div>
+  <div class="hdr-right">
+    <div class="user-chip"><span id="hdr-av">🎮</span><span id="hdr-nick"></span></div>
+    <div class="coin-badge">🪙 <span id="hdr-coins">0</span></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb on" onclick="goTab('shashka',this)"><span class="ic">♟</span>SHASHKA</button>
+  <button class="nb" onclick="goTab('chess',this)"><span class="ic">♔</span>SHAXMAT</button>
+  <button class="nb" onclick="goTab('seabattle',this)"><span class="ic">🚢</span>DENGIZ</button>
+  <button class="nb" onclick="goTab('mini',this)"><span class="ic">🎯</span>MINI</button>
+  <button class="nb" onclick="goTab('profile',this)"><span class="ic">👤</span>PROFIL</button>
+</div>
+
+<!-- ══════════ SHASHKA ══════════ -->
+<div class="panel on" id="panel-shashka">
+  <div class="gtitle">♟ SHASHKA</div>
+  <div class="tgl">
+    <button class="tb on" id="ch-s" onclick="setChMode('solo')">🤖 Bot bilan</button>
+    <button class="tb" id="ch-m" onclick="setChMode('mp')">👥 Do'st bilan</button>
+  </div>
+  <div id="ch-lobby" class="lobby" style="display:none">
+    <div id="ch-obar" class="opp-bar" style="display:none">
+      <div class="opp-dot"></div><span id="ch-onm">Kutilmoqda...</span>
     </div>
-
-    <!-- 1. O'YINLAR BO'LIMI -->
-    <div id="games" class="section active">
-        <div class="card">
-            <div class="sub-nav">
-                <button class="sub-btn active" onclick="switchGame('chess', this)">♟️ Shaxmat</button>
-                <button class="sub-btn" onclick="switchGame('shashka', this)">🎯 Shashka</button>
-                <button class="sub-btn" onclick="switchGame('mau', this)">🎴 Mau-Mau</button>
-                <button class="sub-btn" onclick="switchGame('vs', this)">⚔️ 1v1 Do'st</button>
-                <button class="sub-btn" onclick="switchGame('roulette', this)">🎰 Ruletka</button>
-                <button class="sub-btn" onclick="switchGame('coinflip', this)">🪙 Tanga</button>
-            </div>
-
-            <!-- ♟️ SHAXMAT O'YINI -->
-            <div id="chess" class="game-sub-section active">
-                <div class="card-info">
-                    <h4>♟️ Kiber Shaxmat (Blitz)</h4>
-                    <p>Botga qarshi tezkor shaxmat jangi. G'alaba uchun +50 🪙 beriladi!</p>
-                </div>
-                <div style="background:#000; border:1px solid #00ff66; border-radius:8px; padding:15px; text-align:center;">
-                    <div style="font-size:26px; margin-bottom:5px;">♚ ♔ ♟️ ♞</div>
-                    <p style="font-size:11px; color:#a7f3d0; margin:5px 0;">Bot sun'iy intellekti bilan shaxmat taxtasida bellashing.</p>
-                </div>
-                <button class="btn" onclick="startMiniGame('Shaxmat', 50)">Shaxmat O'yinini Boshlash</button>
-            </div>
-
-            <!-- Shashka -->
-            <div id="shashka" class="game-sub-section">
-                <div class="card-info">
-                    <h4>🎯 Botga qarshi Shashka</h4>
-                    <p>Klassik shashka janggi. G'alaba uchun +40 🪙 beriladi.</p>
-                </div>
-                <button class="btn" onclick="startMiniGame('Shashka', 40)">O'yinni Boshlash</button>
-            </div>
-
-            <!-- Mau-Mau -->
-            <div id="mau" class="game-sub-section">
-                <div class="card-info">
-                    <h4>🎴 Mau-Mau Karta Jangi</h4>
-                    <p>Mos karta tashlang va g'alaba qozoning. Mukofot: +40 🪙</p>
-                </div>
-                <div class="game-board">
-                    <div style="color: #a7f3d0; font-size: 11px;">Bot Kartalari: <span id="botCardCount">4</span> ta</div>
-                    <div style="margin: 10px 0;">
-                        <span style="font-size: 11px; color: #cbd5e1;">Stoldagi Karta:</span>
-                        <div id="tableCard" class="card-item" style="margin: 4px auto;">♥️ 7</div>
-                    </div>
-                    <div style="color: #a7f3d0; font-size: 11px;">Sizning Kartalaringiz:</div>
-                    <div id="myCards" class="cards-container"></div>
-                    <button class="btn btn-sec" style="font-size:11px; padding:6px;" onclick="drawCard()">🎴 Karta olish</button>
-                </div>
-                <button class="btn" onclick="resetMauGame()">🔄 Qaytadan</button>
-            </div>
-
-            <!-- 1v1 Do'st -->
-            <div id="vs" class="game-sub-section">
-                <div class="card-info">
-                    <h4>⚔️ 1v1 Do'st Bilan Bellashuv</h4>
-                    <p>Xona kodi orqali do'stingizni taklif qiling.</p>
-                </div>
-                <button class="btn" onclick="createRoom()">🔑 Xona Yaratish</button>
-                <div id="roomArea" style="display:none; text-align:center; background:#000; padding:8px; border-radius:6px; border:1px solid #00ff66;">
-                    <p style="margin:4px 0; color:#00ff66; font-size:12px;">Kod: <span id="roomCode" style="color:#f59e0b; font-size:16px;">---</span></p>
-                    <button class="btn btn-sec" style="padding:6px; font-size:11px;" onclick="shareRoom()">📩 Havolani Ulashish</button>
-                </div>
-                <input type="text" id="joinCodeInput" placeholder="Xona kodini kiriting..." style="margin-top:5px;">
-                <button class="btn btn-sec" onclick="joinRoom()">🚀 Xonaga Ulanish</button>
-            </div>
-
-            <!-- RULETKA -->
-            <div id="roulette" class="game-sub-section">
-                <div class="card-info">
-                    <h4>🎰 Kiber Ruletka</h4>
-                    <p>Rangni tanlang (Min. Tikish: 40 🪙). G'alaba: 2x mukofot!</p>
-                </div>
-                <div class="roulette-wheel" id="rouletteWheel">🎯</div>
-                <div style="display:flex; gap:8px; margin-top:5px;">
-                    <button class="btn btn-danger" onclick="spinRoulette('RED')">🔴 Qizil (RED)</button>
-                    <button class="btn" style="background:#000; color:#00ff66; border:1px solid #00ff66;" onclick="spinRoulette('BLACK')">⚫ Qora (BLACK)</button>
-                </div>
-                <p id="rouletteResult" style="text-align:center; color:#f59e0b; font-size:11px; margin:5px 0;"></p>
-            </div>
-
-            <!-- Tanga -->
-            <div id="coinflip" class="game-sub-section">
-                <div class="card-info">
-                    <h4>🪙 Oq yoki Qora (Tanga tashlash)</h4>
-                    <p>Tangani taxmin qiling va koiningizni 2 baravar ko'paytiring! (Tikish: 40 🪙)</p>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button class="btn" onclick="playCoinFlip('heads')">🪙 Oq (Heads)</button>
-                    <button class="btn btn-sec" onclick="playCoinFlip('tails')">🪙 Qora (Tails)</button>
-                </div>
-                <p id="coinResult" style="text-align:center; color:#f59e0b; font-size:11px; margin:5px 0;"></p>
-            </div>
-        </div>
+    <div class="room-code" id="ch-code">- - - -</div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn full" onclick="createChRoom()">🎮 Yaratish</button>
+      <button class="btn full g" onclick="copyCode('ch-code')">📋 Ulash</button>
     </div>
-
-    <!-- 2. TRADING BO'LIMI -->
-    <div id="trading" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>📈 Kiber Trading (Live Pips)</h4>
-                <p>Min. stavka: 100 🪙. Pips o'zgarishiga qarab savdoni o'zingiz yoping!</p>
-            </div>
-            
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:#00ff66;">
-                <span>Narx: <b id="tradePrice">$45,200</b></span>
-                <span>Pips: <b id="pipsCount" style="color:#f59e0b;">0 Pips</b></span>
-            </div>
-
-            <div class="chart-box" id="chartBox"></div>
-
-            <div id="tradeButtonsBefore" style="display:flex; gap:10px; margin-top:5px;">
-                <button class="btn" style="background:#22c55e; color:white;" onclick="openTrade('BUY')">🟢 BUY</button>
-                <button class="btn btn-danger" onclick="openTrade('SELL')">🔴 SELL</button>
-            </div>
-
-            <div id="tradeButtonsAfter" style="display:none; margin-top:5px;">
-                <button class="btn btn-danger" onclick="closeTrade()">⏹️ Savdoni Yopish (Close)</button>
-            </div>
-
-            <p id="tradeStatus" style="font-size:11px; text-align:center; color:#f59e0b; margin:0;"></p>
-        </div>
+    <div style="text-align:center;color:var(--muted);font-size:11px;margin:6px 0">— yoki kod kiriting —</div>
+    <div class="row">
+      <input class="room-inp" id="ch-jinp" placeholder="XXXX">
+      <button class="btn g" onclick="joinChRoom()">KIRISH</button>
     </div>
+  </div>
+  <div class="score-bar">
+    <span>🔴 <b id="ch-rs">0</b></span>
+    <span class="status-line" id="ch-st" style="margin:0">Sizning navbatingiz</span>
+    <span>🔵 <b id="ch-bs">0</b></span>
+  </div>
+  <div id="ch-board"></div>
+  <div class="ai-think" id="ch-ai">🤖 Bot o'ylayapti...</div>
+  <div class="row" style="justify-content:center;gap:8px;margin-top:8px">
+    <button class="btn" onclick="undoCh()">↩ Ortga</button>
+    <button class="btn gold" onclick="initCh()">🔄 Yangi</button>
+  </div>
+</div>
 
-    <!-- 3. DO'KON BO'LIMI -->
-    <div id="shop" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>🛒 Kiber Do'kon & Inventar</h4>
-                <p>O'yin winnings evaziga maxsus imkoniyatlarni xarid qiling.</p>
-            </div>
-            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
-                <div><h4 style="margin:0; font-size:13px;">🛡 Qalqon</h4><p style="margin:0; font-size:10px;">Mag'lubiyatdan himoya</p></div>
-                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(40)">40 🪙</button>
-            </div>
-            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
-                <div><h4 style="margin:0; font-size:13px;">💣 Bomba</h4><p style="margin:0; font-size:10px;">Botni portlatish</p></div>
-                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(40)">40 🪙</button>
-            </div>
-            <div class="card" style="flex-direction:row; justify-content:space-between; align-items:center; background:#0f172a;">
-                <div><h4 style="margin:0; font-size:13px;">👑 VIP Unvon</h4><p style="margin:0; font-size:10px;">Elit status</p></div>
-                <button class="btn" style="width:auto; padding:6px 12px;" onclick="buyItem(100)">100 🪙</button>
-            </div>
-        </div>
+<!-- ══════════ SHAXMAT ══════════ -->
+<div class="panel" id="panel-chess">
+  <div class="gtitle">♔ SHAXMAT</div>
+  <div class="tgl">
+    <button class="tb on" id="cs-s" onclick="setCsMode('solo')">🤖 Bot bilan</button>
+    <button class="tb" id="cs-m" onclick="setCsMode('mp')">👥 Do'st bilan</button>
+  </div>
+  <div id="cs-lobby" class="lobby" style="display:none">
+    <div id="cs-obar" class="opp-bar" style="display:none">
+      <div class="opp-dot"></div><span id="cs-onm">Kutilmoqda...</span>
     </div>
-
-    <!-- 4. REYTING BO'LIMI -->
-    <div id="rank" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>🏆 Global Reyting Liderlari</h4>
-                <p>Eng ko'p koin to'plagan kiber-hakerlar ro'yxati</p>
-            </div>
-            <div class="rank-row"><span>1. 👑 CyberGhost</span> <span style="color:#f59e0b; font-weight:bold;">1,450 🪙</span></div>
-            <div class="rank-row"><span>2. 🥈 ZeroCool</span> <span style="color:#f59e0b; font-weight:bold;">1,200 🪙</span></div>
-            <div class="rank-row"><span>3. 🥉 NeoHack</span> <span style="color:#f59e0b; font-weight:bold;">980 🪙</span></div>
-            <div class="rank-row" style="border: 1px solid #00ff66;"><span>🔥 Siz (Player)</span> <span style="color:#00ff66; font-weight:bold;" id="myRankCoins">150 🪙</span></div>
-        </div>
+    <div class="room-code" id="cs-code">- - - -</div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn full" onclick="createCsRoom()">🎮 Yaratish</button>
+      <button class="btn full g" onclick="copyCode('cs-code')">📋 Ulash</button>
     </div>
-
-    <!-- 5. INSTAGRAM AKAUNT CHOPISH -->
-    <div id="hack" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>💀 Instagram Akaunt Chopish</h4>
-                <p>Target profelni kiriting va exploit orqali sessiyani egallang.</p>
-            </div>
-            <input type="text" id="instaNick" placeholder="Target: @username">
-            <button class="btn" onclick="startTerminalPrank()">💥 Eksplouitni Ishga Tushirish</button>
-            <div id="terminalBox" style="display:none; background:#000; color:#00ff66; font-family:monospace; padding:10px; border-radius:8px; font-size:11px; height:120px; overflow-y:auto; border:1px solid #00ff66;"></div>
-        </div>
+    <div style="text-align:center;color:var(--muted);font-size:11px;margin:6px 0">— yoki kod kiriting —</div>
+    <div class="row">
+      <input class="room-inp" id="cs-jinp" placeholder="XXXX">
+      <button class="btn g" onclick="joinCsRoom()">KIRISH</button>
     </div>
+  </div>
+  <div class="score-bar">
+    <span>⚪ <b id="cs-ws">0</b></span>
+    <span class="status-line" id="cs-st" style="margin:0">Sizning navbatingiz</span>
+    <span>⚫ <b id="cs-bs">0</b></span>
+  </div>
+  <div id="chess-board"></div>
+  <div class="ai-think" id="cs-ai">🤖 Bot o'ylayapti...</div>
+  <div class="row" style="justify-content:center;gap:8px;margin-top:8px">
+    <button class="btn" onclick="undoCs()">↩ Ortga</button>
+    <button class="btn gold" onclick="initCs()">🔄 Yangi</button>
+  </div>
+</div>
 
-    <!-- 6. YORDAM BO'LIMI -->
-    <div id="help" class="section">
-        <div class="card">
-            <div class="card-info">
-                <h4>🆘 Yordam va Murojaat</h4>
-                <p>Loyihaga oid savollar, takliflar va muammolar bo'yicha bot admini bilan bog'laning.</p>
-            </div>
-            <div style="text-align:center; padding:10px;">
-                <p style="font-size:12px; color:#00ff66;">👑 Bot Admini: <b>@KAMRONBEK_YULDASHALIYEW</b></p>
-                <a href="https://t.me/KAMRONBEK_YULDASHALIYEW" target="_blank" class="btn btn-sec">💬 Admin Bilan Bog'lanish</a>
-            </div>
-        </div>
+<!-- ══════════ DENGIZ JANGI (SEA BATTLE) ══════════ -->
+<div class="panel" id="panel-seabattle">
+  <div class="gtitle">🚢 DENGIZ JANGI</div>
+  <div class="status-line" id="sb-st">Kemalarni joylashtiring (Boshlash uchun bosing)</div>
+  <div class="sb-grids">
+    <div class="sb-board-wrap">
+      <div class="sb-board-lbl">SIZNING FLOTINGIZ</div>
+      <div class="sb-grid" id="sb-my-grid"></div>
     </div>
-
-    <!-- PASTKI ASOSIY MENYU -->
-    <div class="bottom-nav">
-        <button class="b-nav-btn active" onclick="switchMainTab('games', this)"><span>🎮</span>O'yinlar</button>
-        <button class="b-nav-btn" onclick="switchMainTab('trading', this)"><span>📈</span>Trading</button>
-        <button class="b-nav-btn" onclick="switchMainTab('shop', this)"><span>🛒</span>Do'kon</button>
-        <button class="b-nav-btn" onclick="switchMainTab('rank', this)"><span>🏆</span>Reyting</button>
-        <button class="b-nav-btn" onclick="switchMainTab('hack', this)"><span>💀</span>Akaunt Chopish</button>
-        <button class="b-nav-btn" onclick="switchMainTab('help', this)"><span>🆘</span>Yordam</button>
+    <div class="sb-board-wrap">
+      <div class="sb-board-lbl">RAQIB HUDUDI</div>
+      <div class="sb-grid" id="sb-opp-grid"></div>
     </div>
+  </div>
+  <div class="row" style="justify-content:center;gap:8px">
+    <button class="btn g" onclick="sbAutoPlace()">🔄 Qayta joylash</button>
+    <button class="btn gold" onclick="initSb()">🚀 Jangni boshlash</button>
+  </div>
+</div>
 
-    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
-    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+<!-- ══════════ MINI O'YINLAR ══════════ -->
+<div class="panel" id="panel-mini">
+  <div class="gtitle">🎯 MINI O'YINLAR</div>
+  <div class="tgl">
+    <button class="tb on" onclick="showMini('maumau',this)">🃏 Mau-Mau</button>
+    <button class="tb" onclick="showMini('ttt',this)">❌ XO</button>
+    <button class="tb" onclick="showMini('rps',this)">✂️ T-Q-Q</button>
+    <button class="tb" onclick="showMini('num',this)">🔢 Raqam</button>
+  </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+  <!-- MAU-MAU -->
+  <div id="mini-maumau">
+    <div class="tgl">
+      <button class="tb on" id="mm-s" onclick="setMmMode('solo')">🤖 Bot</button>
+      <button class="tb" id="mm-m" onclick="setMmMode('mp')">👥 Do'st</button>
+    </div>
+    <div id="mm-lobby" class="lobby" style="display:none">
+      <div id="mm-obar" class="opp-bar" style="display:none">
+        <div class="opp-dot"></div><span id="mm-onm">Kutilmoqda...</span>
+      </div>
+      <div class="room-code" id="mm-code">- - - -</div>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn full" onclick="createMmRoom()">🎮 Yaratish</button>
+        <button class="btn full g" onclick="copyCode('mm-code')">📋 Ulash</button>
+      </div>
+      <div class="row">
+        <input class="room-inp" id="mm-jinp" placeholder="XXXX">
+        <button class="btn g" onclick="joinMmRoom()">KIRISH</button>
+      </div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Bot kartalari: <b id="mm-bc">4</b> ta</div>
+      <div id="mm-tcard" class="table-card r">♥<br>7</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Sizning kartalaringiz:</div>
+      <div id="mm-hand" style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div class="row" style="justify-content:center">
+        <button class="btn g" onclick="mmDraw()">🎴 Karta ol</button>
+        <button class="btn gold" onclick="initMm()">🔄 Yangi</button>
+      </div>
+    </div>
+    <div class="status-line" id="mm-st">Sizning navbatingiz</div>
+  </div>
 
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+  <!-- TIC TAC TOE -->
+  <div id="mini-ttt" style="display:none">
+    <div class="tgl">
+      <button class="tb on" id="ttt-s" onclick="setTttMode('solo')">🤖 Bot</button>
+      <button class="tb" id="ttt-m" onclick="setTttMode('mp')">👥 Do'st</button>
+    </div>
+    <div id="ttt-lobby" class="lobby" style="display:none">
+      <div id="ttt-obar" class="opp-bar" style="display:none">
+        <div class="opp-dot"></div><span id="ttt-onm">Kutilmoqda...</span>
+      </div>
+      <div class="room-code" id="ttt-code">- - - -</div>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn full" onclick="createTttRoom()">🎮 Yaratish</button>
+        <button class="btn full g" onclick="copyCode('ttt-code')">📋 Ulash</button>
+      </div>
+      <div class="row">
+        <input class="room-inp" id="ttt-jinp" placeholder="XXXX">
+        <button class="btn g" onclick="joinTttRoom()">KIRISH</button>
+      </div>
+    </div>
+    <div class="status-line" id="ttt-st">❌ Sizning navbatingiz</div>
+    <div id="ttt-board"></div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn gold" onclick="initTtt()">🔄 Yangi</button>
+    </div>
+  </div>
 
-        const matrixChars = '0110010101011010010101010101010101';
-        const fontSize = 13;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
+  <!-- RPS -->
+  <div id="mini-rps" style="display:none">
+    <div class="tgl">
+      <button class="tb on" id="rps-s" onclick="setRpsMode('solo')">🤖 Bot</button>
+      <button class="tb" id="rps-m" onclick="setRpsMode('mp')">👥 Do'st</button>
+    </div>
+    <div id="rps-lobby" class="lobby" style="display:none">
+      <div id="rps-obar" class="opp-bar" style="display:none">
+        <div class="opp-dot"></div><span id="rps-onm">Kutilmoqda...</span>
+      </div>
+      <div class="room-code" id="rps-code">- - - -</div>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn full" onclick="createRpsRoom()">🎮 Yaratish</button>
+        <button class="btn full g" onclick="copyCode('rps-code')">📋 Ulash</button>
+      </div>
+      <div class="row">
+        <input class="room-inp" id="rps-jinp" placeholder="XXXX">
+        <button class="btn g" onclick="joinRpsRoom()">KIRISH</button>
+      </div>
+    </div>
+    <div class="rps-display">
+      <div class="rps-side">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">SIZ</div>
+        <div class="rps-em" id="rps-you">❓</div>
+      </div>
+      <div class="rps-side">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="rps-opp-lbl">BOT</div>
+        <div class="rps-em" id="rps-opp">❓</div>
+      </div>
+    </div>
+    <div class="status-line" id="rps-res"></div>
+    <div class="rps-btns">
+      <button class="rps-btn" onclick="playRps('🪨')">🪨</button>
+      <button class="rps-btn" onclick="playRps('📄')">📄</button>
+      <button class="rps-btn" onclick="playRps('✂️')">✂️</button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:20px;font-size:13px">
+      <span>✅ <b id="rw">0</b></span><span>❌ <b id="rl">0</b></span><span>🤝 <b id="rd">0</b></span>
+    </div>
+  </div>
 
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(3, 7, 18, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00ff66';
-            ctx.font = fontSize + 'px monospace';
+  <!-- NUMBER GUESS -->
+  <div id="mini-num" style="display:none">
+    <div class="card" style="text-align:center">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--fd);letter-spacing:1px;margin-bottom:8px">1 DAN 100 GACHA TOPING</div>
+      <div style="font-size:50px;font-family:var(--fd);font-weight:900;color:var(--accent)" id="num-att">10</div>
+      <div style="color:var(--muted);font-size:11px">ta urinish qoldi</div>
+    </div>
+    <div class="status-line" id="num-hint"></div>
+    <div id="num-hist" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:10px;min-height:28px"></div>
+    <div class="row">
+      <input id="num-inp" type="number" min="1" max="100" placeholder="1-100..."
+        style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:15px;outline:none"
+        onkeydown="if(event.key==='Enter')guessNum()">
+      <button class="btn" onclick="guessNum()">➤</button>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn gold" onclick="initNum()">🔄 Yangi</button>
+    </div>
+  </div>
+</div>
 
-            for (let i = 0; i < drops.length; i++) {
-                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
+<!-- ══════════ PROFIL ══════════ -->
+<div class="panel" id="panel-profile">
+  <div class="gtitle">👤 PROFIL</div>
+  <div class="card" style="text-align:center;padding:20px">
+    <div style="font-size:52px" id="pr-av">🎮</div>
+    <div style="font-family:var(--fd);font-size:18px;font-weight:900;margin:8px 0" id="pr-nick">PLAYER</div>
+    <div style="font-size:12px;color:var(--muted)">Daraja: <b id="pr-lv" style="color:var(--gold)">1</b></div>
+    <div class="xp-bar" style="margin:8px 0"><div class="xp-fill" id="pr-xpf" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--muted)" id="pr-xpt">0 / 100 XP</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-box"><div style="font-size:22px">🏆</div><div class="stat-val" id="pr-wins">0</div><div class="stat-lbl">G'alaba</div></div>
+    <div class="stat-box"><div style="font-size:22px">🪙</div><div class="stat-val" id="pr-coins">0</div><div class="stat-lbl">Koin</div></div>
+    <div class="stat-box"><div style="font-size:22px">🔥</div><div class="stat-val" id="pr-streak">0</div><div class="stat-lbl">Streak</div></div>
+  </div>
+
+  <div class="gtitle" style="font-size:12px;margin-top:6px">🏆 REYTING</div>
+  <div id="leaderboard">
+    <div class="lb-row"><div class="lb-rank">👑</div><div class="lb-name">CyberGhost</div><div class="lb-sc">1450 🪙</div></div>
+    <div class="lb-row"><div class="lb-rank">🥈</div><div class="lb-name">ZeroCool</div><div class="lb-sc">1200 🪙</div></div>
+    <div class="lb-row"><div class="lb-rank">🥉</div><div class="lb-name">NeoHack</div><div class="lb-sc">980 🪙</div></div>
+    <div class="lb-row" style="border-color:var(--accent)"><div class="lb-rank">🔥</div><div class="lb-name" id="lb-nm">Siz</div><div class="lb-sc" id="lb-sc">0 🪙</div></div>
+  </div>
+
+  <div class="gtitle" style="font-size:12px;margin-top:10px">🛒 DO'KON</div>
+  <div class="shop-item">
+    <div class="shop-ico">🛡</div>
+    <div class="shop-info"><div class="shop-nm">Qalqon</div><div class="shop-ds">Mag'lubiyatdan himoya</div></div>
+    <button class="btn gold" onclick="buy(40,'Qalqon')">40🪙</button>
+  </div>
+  <div class="shop-item">
+    <div class="shop-ico">💣</div>
+    <div class="shop-info"><div class="shop-nm">Bomba</div><div class="shop-ds">Botni chalg'itadi</div></div>
+    <button class="btn gold" onclick="buy(60,'Bomba')">60🪙</button>
+  </div>
+  <div class="shop-item">
+    <div class="shop-ico">👑</div>
+    <div class="shop-info"><div class="shop-nm">VIP Unvon</div><div class="shop-ds">Reytingda maxsus belgi</div></div>
+    <button class="btn gold" onclick="buy(150,'VIP')">150🪙</button>
+  </div>
+
+  <div class="gtitle" style="font-size:12px;margin-top:16px">❓ YORDAM</div>
+  <div class="contact-card">
+    <div style="font-size:36px;margin-bottom:8px">👨‍💻</div>
+    <div style="font-family:var(--fd);font-size:13px;color:var(--accent);margin-bottom:6px">ADMIN BILAN BOG'LANISH</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Savollar bo'yicha kanalga o'ting</div>
+    <a href="https://t.me/+PctCJlNSblg4NjEy" target="_blank"
+       style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#0088cc,#00aae4);color:#fff;border-radius:9px;font-family:var(--fd);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:1px">
+      📢 KANAL
+    </a>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ═══ ADMIN PANEL (hidden, maxsus kirish) ═══ -->
+<div id="admin-panel" style="display:none;padding:12px 16px">
+  <div class="gtitle" style="color:var(--purple)">🔐 ADMIN PANEL</div>
+
+  <div class="admin-stat">
+    <div class="adm-box"><div class="adm-val" id="adm-total">0</div><div class="adm-lbl">Jami foydalanuvchi</div></div>
+    <div class="adm-box"><div class="adm-val" id="adm-today">0</div><div class="adm-lbl">Bugun qo'shildi</div></div>
+    <div class="adm-box"><div class="adm-val" id="adm-active">0</div><div class="adm-lbl">Faol (7 kun)</div></div>
+    <div class="adm-box"><div class="adm-val" id="adm-games">0</div><div class="adm-lbl">Jami o'yinlar</div></div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input id="adm-search" placeholder="Qidirish..." style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none" oninput="filterUsers()">
+    <button class="btn purple" onclick="refreshUsers()">🔄</button>
+  </div>
+
+  <div class="gtitle" style="font-size:12px;color:var(--purple)">👥 FOYDALANUVCHILAR</div>
+  <div id="adm-users"></div>
+
+  <div style="text-align:center;margin-top:12px">
+    <button class="btn r" onclick="closeAdmin()">✕ Yopish</button>
+  </div>
+</div>
+
+<!-- TOAST & MODAL -->
+<div id="toast"></div>
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-btns" style="justify-content:center">
+      <button class="btn gold" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const BOT_TOKEN = '8468647061:AAHH5o87SlOmbWD1iKiFcwACqsTcWBUlw5I';
+const CHANNEL   = -1004447886400;
+const ADMINS    = ['admin'];
+
+let S = JSON.parse(localStorage.getItem('ka3') || '{}');
+S.coins  = S.coins  || 0;
+S.wins   = S.wins   || 0;
+S.xp     = S.xp     || 0;
+S.level  = S.level  || 1;
+S.streak = S.streak || 0;
+S.nick   = S.nick   || '';
+S.avatar = S.avatar || '🎮';
+S.gamesPlayed = S.gamesPlayed || 0;
+let myNick = S.nick, myAv = S.avatar;
+
+function save() { localStorage.setItem('ka3', JSON.stringify(S)); }
+
+function addCoins(n) {
+  S.coins = Math.max(0, S.coins + n); save();
+  document.getElementById('hdr-coins').textContent = S.coins;
+}
+function addXP(n) {
+  S.xp += n;
+  if (S.xp >= S.level * 100) { S.xp -= S.level * 100; S.level++; toast('🆙 Daraja ' + S.level + '!'); }
+  save(); renderProfile();
+}
+function addWin() { S.wins++; S.streak++; S.gamesPlayed++; save(); renderProfile(); }
+function addLoss() { S.streak = 0; S.gamesPlayed++; save(); renderProfile(); }
+
+function getUsers() { return JSON.parse(localStorage.getItem('ka_users') || '[]'); }
+function saveUser(uid, nick, av) {
+  const users = getUsers();
+  const today = new Date().toISOString().slice(0, 10);
+  const ex = users.find(u => u.id === uid);
+  if (!ex) {
+    users.push({ id: uid, nick, av, coins: S.coins, wins: S.wins, joined: today, lastSeen: today, gamesPlayed: 0 });
+  } else {
+    ex.lastSeen = today; ex.coins = S.coins; ex.wins = S.wins; ex.nick = nick; ex.av = av; ex.gamesPlayed = S.gamesPlayed;
+  }
+  localStorage.setItem('ka_users', JSON.stringify(users));
+}
+
+function toast(msg, dur = 2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function showModal(t, b) {
+  document.getElementById('modal-title').textContent = t;
+  document.getElementById('modal-body').textContent = b;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+function goTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  document.getElementById('panel-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+function showMini(id, btn) {
+  ['maumau','ttt','rps','num'].forEach(n => {
+    const el = document.getElementById('mini-' + n);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('mini-' + id).style.display = 'block';
+  document.querySelectorAll('#panel-mini .tgl .tb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+let _room = null;
+async function getRoom() {
+  if (!_room) _room = await window.claude?.use?.('room') ?? null;
+  return _room;
+}
+function genCode() { return Math.random().toString(36).slice(2, 6).toUpperCase(); }
+function copyCode(elId) {
+  const code = document.getElementById(elId).textContent.replace(/[\s-]/g, '');
+  navigator.clipboard?.writeText(code).catch(() => {});
+  toast('📋 Kod nusxalandi: ' + code);
+}
+
+let selAv = '🎮';
+document.querySelectorAll('.av').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('.av').forEach(a => a.classList.remove('on'));
+    el.classList.add('on'); selAv = el.dataset.av;
+  };
+});
+function doNick() {
+  const v = document.getElementById('nick-inp').value.trim();
+  if (!v || v.length < 2) { document.getElementById('nick-inp').style.borderColor = 'var(--danger)'; return; }
+  myNick = v; myAv = selAv; S.nick = myNick; S.avatar = myAv; save();
+  document.getElementById('nick-screen').classList.add('hidden');
+  checkSub_flow(startApp);
+}
+
+function checkSub_flow(cb) {
+  if (sessionStorage.getItem('sub_ok')) { cb(); return; }
+  const tg = window.Telegram?.WebApp;
+  if (!tg || !tg.initDataUnsafe?.user) { cb(); return; }
+  document.getElementById('sub-screen').classList.remove('hidden');
+  window._subCb = cb;
+}
+function checkSub() {
+  const btn = document.getElementById('sub-cbtn');
+  const err = document.getElementById('sub-err');
+  btn.textContent = '⏳ Tekshirilmoqda...'; btn.disabled = true;
+  const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHANNEL}&user_id=${uid}`)
+    .then(r => r.json())
+    .then(d => {
+      const st = d?.result?.status;
+      if (['creator','administrator','member'].includes(st)) {
+        sessionStorage.setItem('sub_ok', '1');
+        document.getElementById('sub-screen').classList.add('hidden');
+        if (window._subCb) window._subCb();
+      } else {
+        btn.textContent = '✅ Obuna bo\'ldim, tekshir'; btn.disabled = false;
+        err.textContent = '❌ Hali obuna bo\'lmadingiz!';
+      }
+    })
+    .catch(() => {
+      sessionStorage.setItem('sub_ok', '1');
+      document.getElementById('sub-screen').classList.add('hidden');
+      if (window._subCb) window._subCb();
+    });
+}
+
+function startApp() {
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('hdr-nick').textContent = myNick;
+  document.getElementById('hdr-av').textContent = myAv;
+  document.getElementById('hdr-coins').textContent = S.coins;
+  renderProfile();
+  initCh(); initCs(); initSb(); initMm(); initTtt(); initNum();
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const uid = tgUser?.id || ('local_' + myNick);
+  saveUser(uid, myNick, myAv);
+}
+
+function renderProfile() {
+  document.getElementById('pr-av').textContent = myAv;
+  document.getElementById('pr-nick').textContent = myNick;
+  document.getElementById('pr-lv').textContent = S.level;
+  document.getElementById('pr-wins').textContent = S.wins;
+  document.getElementById('pr-coins').textContent = S.coins;
+  document.getElementById('pr-streak').textContent = S.streak;
+  document.getElementById('pr-xpf').style.width = Math.min(100, (S.xp / (S.level * 100)) * 100) + '%';
+  document.getElementById('pr-xpt').textContent = S.xp + ' / ' + (S.level * 100) + ' XP';
+  document.getElementById('lb-nm').textContent = myAv + ' ' + myNick;
+  document.getElementById('lb-sc').textContent = S.coins + ' 🪙';
+}
+
+function buy(price, name) {
+  if (S.coins < price) { toast('❌ Koin yetarli emas!'); return; }
+  addCoins(-price); toast('✅ ' + name + ' xarid qilindi!');
+}
+
+// ═══════════════════════════════════════════
+//  SHASHKA (CHECKERS)
+// ═══════════════════════════════════════════
+const RED=1, BLK=2, RK=3, BK=4;
+let chBoard=[], chSel=null, chTurn=RED, chHist=[], chMp=false, chMpOk=false;
+let chRoom=null, chMe=RED, chCode='', chRS=0, chBS=0;
+
+function initCh() {
+  chBoard = Array.from({length:8}, (_, r) =>
+    Array.from({length:8}, (_, c) => {
+      if ((r+c)%2!==0) return 0;
+      if (r < 3) return BLK;
+      if (r > 4) return RED;
+      return 0;
+    })
+  );
+  chSel = null; chTurn = RED; chHist = [];
+  renderChBoard(); setCst('Sizning navbatingiz');
+}
+
+function renderChBoard() {
+  const el = document.getElementById('ch-board'); el.innerHTML = '';
+  for (let r=0; r<8; r++) {
+    for (let c=0; c<8; c++) {
+      const dark = (r+c)%2 === 0;
+      const div = document.createElement('div');
+      div.className = 'cell ' + (dark ? 'dk' : 'lt');
+      if (dark) {
+        div.onclick = () => onChCell(r, c);
+        const p = chBoard[r][c];
+        if (chSel && chSel[0]===r && chSel[1]===c) div.classList.add('sel');
+        if (chSel) {
+          const hints = [...chGetJumps(...chSel), ...chGetMoves(...chSel)];
+          if (hints.some(m => m[0]===r && m[1]===c)) div.classList.add('hint');
         }
-        setInterval(drawMatrix, 33);
-
-        let coins = parseInt(localStorage.getItem('kiber_coins')) || 150;
-        document.getElementById('coinCount').innerText = coins;
-        document.getElementById('myRankCoins').innerText = coins + " 🪙";
-
-        function playSound(type) {
-            let sound = type === 'win' ? document.getElementById('winSound') : document.getElementById('clickSound');
-            if (sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
+        if (p) {
+          const piece = document.createElement('div');
+          piece.className = 'piece ' + (p===RED||p===RK?'pr':'pb') + (p===RK||p===BK?' king':'');
+          if (chSel && chSel[0]===r && chSel[1]===c) piece.classList.add('sel-p');
+          div.appendChild(piece);
         }
+      }
+      el.appendChild(div);
+    }
+  }
+}
 
-        function switchMainTab(tabId, btn) {
-            playSound('click');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.b-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
-        }
+function onChCell(r, c) {
+  const myTurn = chMp && chMpOk ? chMe : RED;
+  if (chTurn !== myTurn) return;
+  const p = chBoard[r][c];
+  const isMine = p===RED||p===RK ? chTurn===RED : p===BLK||p===BK ? chTurn===BLK : false;
+  if (p && isMine) { chSel=[r,c]; renderChBoard(); return; }
+  if (!chSel) return;
+  const jumps = chGetJumps(...chSel);
+  const moves = chGetMoves(...chSel);
+  const move = [...jumps,...moves].find(m=>m[0]===r&&m[1]===c);
+  if (!move) { chSel=null; renderChBoard(); return; }
+  chHist.push(chBoard.map(row=>row.slice()));
+  chMove(chSel[0],chSel[1],r,c,move);
+  chSel=null; chPromote();
+  const w = chCheckWin();
+  if (w) { chHandleWin(w); return; }
+  chTurn = chTurn===RED ? BLK : RED;
+  if (chMp && chMpOk && chRoom) chRoom.emit('move',{board:chBoard.map(r=>r.slice()),turn:chTurn});
+  renderChBoard();
+  if (!chMp && chTurn===BLK) { setCst('🤖 Bot o\'ylayapti...'); document.getElementById('ch-ai').classList.add('show'); setTimeout(chBotMove,700); }
+  else setCst(chTurn===RED?'🔴 Sizning navbatingiz':'🔵 Raqib navbati');
+}
 
-        function switchGame(gameId, btn) {
-            playSound('click');
-            document.querySelectorAll('.game-sub-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(gameId).classList.add('active');
-            btn.classList.add('active');
-        }
+function chMove(r1,c1,r2,c2,move) {
+  chBoard[r2][c2]=chBoard[r1][c1]; chBoard[r1][c1]=0;
+  if (move.length===3) chBoard[move[2][0]][move[2][1]]=0;
+}
+function chGetMoves(r,c) {
+  const p=chBoard[r][c]; const dirs=[];
+  if(p===RED||p===RK) dirs.push([-1,-1],[-1,1]);
+  if(p===BLK||p===BK) dirs.push([1,-1],[1,1]);
+  return dirs.map(([dr,dc])=>[r+dr,c+dc]).filter(([nr,nc])=>nr>=0&&nr<8&&nc>=0&&nc<8&&chBoard[nr][nc]===0);
+}
+function chGetJumps(r,c) {
+  const p=chBoard[r][c]; const dirs=[];
+  if(p===RED||p===RK) dirs.push([-1,-1],[-1,1]);
+  if(p===BLK||p===BK) dirs.push([1,-1],[1,1]);
+  const opp=p===RED||p===RK?[BLK,BK]:[RED,RK];
+  return dirs.map(([dr,dc])=>{
+    const mr=r+dr,mc=c+dc,lr=r+dr*2,lc=c+dc*2;
+    if(lr>=0&&lr<8&&lc>=0&&lc<8&&opp.includes(chBoard[mr][mc])&&chBoard[lr][lc]===0)
+      return [lr,lc,[mr,mc]];
+    return null;
+  }).filter(Boolean);
+}
+function chPromote() {
+  for(let c=0;c<8;c++) { if(chBoard[0][c]===RED) chBoard[0][c]=RK; if(chBoard[7][c]===BLK) chBoard[7][c]=BK; }
+}
+function chCheckWin() {
+  const r=chBoard.flat().filter(p=>p===RED||p===RK).length;
+  const b=chBoard.flat().filter(p=>p===BLK||p===BK).length;
+  return !r?BLK:!b?RED:0;
+}
+function chHandleWin(who) {
+  if(who===RED){ chRS++; document.getElementById('ch-rs').textContent=chRS; addCoins(30); addXP(50); addWin(); showModal('🏆 G\'alaba!','+30🪙 +50XP qo\'shildi!'); }
+  else { chBS++; document.getElementById('ch-bs').textContent=chBS; addLoss(); showModal('😞 Yutqazdingiz!','Bot yutdi. Qayta urinib ko\'ring!'); }
+  renderChBoard(); setTimeout(initCh,2000);
+}
+function chBotMove() {
+  document.getElementById('ch-ai').classList.remove('show');
+  const pcs=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) if(chBoard[r][c]===BLK||chBoard[r][c]===BK) pcs.push([r,c]);
+  let best=null;
+  for(const [r,c] of pcs){ const j=chGetJumps(r,c); if(j.length){best={from:[r,c],to:j[0],move:j[0]};break;} }
+  if(!best) for(const [r,c] of pcs){ const m=chGetMoves(r,c); if(m.length){const t=m[Math.floor(Math.random()*m.length)];best={from:[r,c],to:t,move:t};break;} }
+  if(!best){chHandleWin(RED);return;}
+  chHist.push(chBoard.map(r=>r.slice()));
+  chMove(best.from[0],best.from[1],best.to[0],best.to[1],best.move);
+  chPromote();
+  const w=chCheckWin(); if(w){chHandleWin(w);return;}
+  chTurn=RED; renderChBoard(); setCst('🔴 Sizning navbatingiz');
+}
+function undoCh() { if(!chHist.length) return; chBoard=chHist.pop(); chTurn=RED; renderChBoard(); setCst('Sizning navbatingiz'); }
+function setCst(msg) { document.getElementById('ch-st').textContent=msg; }
+function setChMode(mode) {
+  chMp=mode==='mp'; chMpOk=false; chRoom=null;
+  document.getElementById('ch-s').classList.toggle('on',!chMp);
+  document.getElementById('ch-m').classList.toggle('on',chMp);
+  document.getElementById('ch-lobby').style.display=chMp?'block':'none';
+  initCh();
+}
+async function createChRoom() {
+  chCode=genCode(); document.getElementById('ch-code').textContent=chCode;
+  const r=await getRoom(); if(!r){toast('Room yoq, lokal rejim');chMpOk=true;return;}
+  chRoom=r.join('ch-'+chCode); chMe=RED;
+  chRoom.presence({nick:myNick,av:myAv,role:'red'});
+  chRoom.onPeers(peers=>{const o=peers.find(p=>p.role==='blue');if(o){document.getElementById('ch-obar').style.display='flex';document.getElementById('ch-onm').textContent=o.av+' '+o.nick;chMpOk=true;toast('👥 '+o.nick+' qo\'shildi!');}});
+  chRoom.on('move',d=>{chBoard=d.board;chTurn=d.turn;chPromote();const w=chCheckWin();if(w)chHandleWin(w);else{renderChBoard();setCst(chTurn===chMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati');}});
+}
+async function joinChRoom() {
+  const code=document.getElementById('ch-jinp').value.trim().toUpperCase();
+  if(code.length<4){toast('Kodni kiriting!');return;}
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  chRoom=r.join('ch-'+code); chMe=BLK; chMpOk=true;
+  document.getElementById('ch-code').textContent=code;
+  chRoom.presence({nick:myNick,av:myAv,role:'blue'});
+  chRoom.onPeers(peers=>{const h=peers.find(p=>p.role==='red');if(h){document.getElementById('ch-obar').style.display='flex';document.getElementById('ch-onm').textContent=h.av+' '+h.nick;}});
+  chRoom.on('move',d=>{chBoard=d.board;chTurn=d.turn;chPromote();const w=chCheckWin();if(w)chHandleWin(w);else{renderChBoard();setCst(chTurn===chMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati');}});
+  toast('✅ Ulandingiz: '+code);
+}
 
-        function startMiniGame(gameName, reward) {
-            playSound('click');
-            alert(gameName + " o'yini ishga tushdi...");
-            setTimeout(() => {
-                if (Math.random() > 0.3) {
-                    coins += reward;
-                    playSound('win');
-                    updateCoins();
-                    alert(`🎉 G'alaba! +${reward} 🪙 qo'shildi!`);
-                } else {
-                    alert("❌ Mag'lubiyat! Qaytadan urinib ko'ring.");
-                }
-            }, 1200);
-        }
+// ═══════════════════════════════════════════
+//  SHAXMAT (CHESS)
+// ═══════════════════════════════════════════
+const CP = {
+  wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',
+  bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'
+};
+let csBoard=[], csTurn='w', csSel=null, csHist=[], csMp=false, csMpOk=false;
+let csRoom=null, csMe='w', csWS=0, csBSc=0;
 
-        /* RULETKA */
-        function spinRoulette(colorChoice) {
-            playSound('click');
-            if (coins < 40) return alert("Ruletka o'ynash uchun kamida 40 🪙 kerak!");
-            coins -= 40;
-            updateCoins();
+function csInitBoard() {
+  return [
+    ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+    ['bP','bP','bP','bP','bP','bP','bP','bP'],
+    [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+    ['wP','wP','wP','wP','wP','wP','wP','wP'],
+    ['wR','wN','wB','wQ','wK','wB','wN','wR']
+  ];
+}
 
-            let wheel = document.getElementById('rouletteWheel');
-            let resText = document.getElementById('rouletteResult');
-            resText.innerText = "🌀 Ruletka aylanmoqda...";
-            
-            let randomDeg = 1440 + Math.floor(Math.random() * 360);
-            wheel.style.transform = `rotate(${randomDeg}deg)`;
+function initCs() {
+  csBoard=csInitBoard(); csTurn='w'; csSel=null; csHist=[];
+  renderCs(); setCsst('⚪ Sizning navbatingiz (Oq)');
+}
 
-            setTimeout(() => {
-                let winColor = Math.random() > 0.5 ? 'RED' : 'BLACK';
-                let num = Math.floor(Math.random() * 36);
-                wheel.innerText = num;
+function renderCs() {
+  const el=document.getElementById('chess-board'); el.innerHTML='';
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      const white=(r+c)%2===0;
+      const sq=document.createElement('div');
+      sq.className='sq '+(white?'w':'b');
+      sq.onclick=()=>onCsSq(r,c);
+      if(csSel&&csSel[0]===r&&csSel[1]===c) sq.classList.add('sel-sq');
+      if(csSel){
+        const moves=csGetMoves(csSel[0],csSel[1],csBoard,csTurn);
+        if(moves.some(m=>m[0]===r&&m[1]===c)) sq.classList.add('hint-sq');
+      }
+      const p=csBoard[r][c];
+      if(p) sq.textContent=CP[p];
+      el.appendChild(sq);
+    }
+  }
+}
 
-                if (colorChoice === winColor) {
-                    coins += 80;
-                    playSound('win');
-                    updateCoins();
-                    resText.innerText = `🎉 Tabriklaymiz! ${num} (${winColor}) tushdi. +80 🪙 yutdingiz!`;
-                } else {
-                    resText.innerText = `❌ ${num} (${winColor}) tushdi. Yutqazdingiz (-40 🪙).`;
-                }
-            }, 2000);
-        }
+function onCsSq(r,c) {
+  const myTurn = csMp&&csMpOk ? csMe : 'w';
+  if(csTurn!==myTurn) return;
+  const p=csBoard[r][c];
+  if(p&&p.startsWith(csTurn)){csSel=[r,c];renderCs();return;}
+  if(!csSel) return;
+  const moves=csGetMoves(csSel[0],csSel[1],csBoard,csTurn);
+  const mv=moves.find(m=>m[0]===r&&m[1]===c);
+  if(!mv){csSel=null;renderCs();return;}
+  csHist.push({board:csBoard.map(r=>[...r]),turn:csTurn});
+  csApplyMove(csSel[0],csSel[1],r,c);
+  csSel=null;
+  const w=csCheckEnd();
+  if(w){csHandleEnd(w);return;}
+  csTurn=csTurn==='w'?'b':'w';
+  if(csMp&&csMpOk&&csRoom) csRoom.emit('move',{board:csBoard.map(r=>[...r]),turn:csTurn});
+  renderCs();
+  if(!csMp&&csTurn==='b'){setCsst('🤖 Bot o\'ylayapti...');document.getElementById('cs-ai').classList.add('show');setTimeout(csBotMove,700);}
+  else setCsst(csTurn==='w'?'⚪ Sizning navbatingiz':'⚫ Raqib navbati');
+}
 
-        /* COIN FLIP */
-        function playCoinFlip(choice) {
-            playSound('click');
-            if (coins < 40) return alert("Tangalar yetarli emas! (Minimal 40 🪙)");
-            coins -= 40;
-            updateCoins();
+function csApplyMove(r1,c1,r2,c2) {
+  const p=csBoard[r1][c1];
+  csBoard[r2][c2]=p; csBoard[r1][c1]=0;
+  if(p==='wP'&&r2===0) csBoard[r2][c2]='wQ';
+  if(p==='bP'&&r2===7) csBoard[r2][c2]='bQ';
+}
 
-            let resText = document.getElementById('coinResult');
-            resText.innerText = "🪙 Tanga aylanmoqda...";
+function csGetMoves(r,c,board,turn) {
+  const p=board[r][c]; if(!p||!p.startsWith(turn)) return [];
+  const moves=[]; const type=p[1];
+  const opp=turn==='w'?'b':'w';
+  const add=(nr,nc)=>{
+    if(nr<0||nr>7||nc<0||nc>7) return false;
+    if(board[nr][nc]&&board[nr][nc].startsWith(turn)) return false;
+    moves.push([nr,nc]);
+    return !board[nr][nc];
+  };
+  const slide=(dr,dc)=>{for(let i=1;i<8;i++){if(!add(r+dr*i,c+dc*i))break;}};
+  if(type==='P'){
+    const dr=turn==='w'?-1:1;
+    if(!board[r+dr]?.[c]) add(r+dr,c);
+    if((turn==='w'&&r===6)||(turn==='b'&&r===1)) if(!board[r+dr]?.[c]&&!board[r+dr*2]?.[c]) add(r+dr*2,c);
+    [[r+dr,c-1],[r+dr,c+1]].forEach(([nr,nc])=>{if(board[nr]?.[nc]?.startsWith(opp)) moves.push([nr,nc]);});
+  }
+  if(type==='R'){slide(1,0);slide(-1,0);slide(0,1);slide(0,-1);}
+  if(type==='B'){slide(1,1);slide(1,-1);slide(-1,1);slide(-1,-1);}
+  if(type==='Q'){slide(1,0);slide(-1,0);slide(0,1);slide(0,-1);slide(1,1);slide(1,-1);slide(-1,1);slide(-1,-1);}
+  if(type==='N'){[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>add(r+dr,c+dc));}
+  if(type==='K'){[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(r+dr,c+dc));}
+  return moves;
+}
 
-            setTimeout(() => {
-                let win = Math.random() > 0.5;
-                if (win) {
-                    coins += 80;
-                    playSound('win');
-                    updateCoins();
-                    resText.innerText = "🎉 Tabriklaymiz! Siz yutdingiz (+80 🪙)!";
-                } else {
-                    resText.innerText = "❌ Afsuski, yutqazdingiz (-40 🪙).";
-                }
-            }, 1000);
-        }
+function csCheckEnd() {
+  const wK=csBoard.flat().includes('wK');
+  const bK=csBoard.flat().includes('bK');
+  if(!bK) return 'w'; if(!wK) return 'b';
+  return null;
+}
 
-        /* TRADING LOGIKASI */
-        let currentPrice = 45200;
-        let entryPrice = 0;
-        let tradeType = '';
-        let isTradingActive = false;
-        let chartBox = document.getElementById('chartBox');
+function csHandleEnd(who) {
+  if(who==='w'){csWS++;document.getElementById('cs-ws').textContent=csWS;addCoins(50);addXP(80);addWin();showModal('🏆 G\'alaba!','Shoh olindi! +50🪙 +80XP');}
+  else{csBSc++;document.getElementById('cs-bs').textContent=csBSc;addLoss();showModal('😞 Yutqazdingiz!','Sizning shohingiz olindi!');}
+  setTimeout(initCs,2000);
+}
 
-        function initChart() {
-            chartBox.innerHTML = '';
-            for (let i = 0; i < 12; i++) {
-                let bar = document.createElement('div');
-                let h = Math.floor(Math.random() * 70) + 20;
-                bar.className = 'chart-bar' + (Math.random() > 0.5 ? '' : ' down');
-                bar.style.height = h + '%';
-                chartBox.appendChild(bar);
-            }
-        }
-        initChart();
+function csBotMove() {
+  document.getElementById('cs-ai').classList.remove('show');
+  const pieces=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) if(csBoard[r][c]?.startsWith('b')) pieces.push([r,c]);
+  pieces.sort(()=>Math.random()-.5);
+  for(const [r,c] of pieces){
+    const moves=csGetMoves(r,c,csBoard,'b');
+    if(moves.length){
+      const cap=moves.find(([nr,nc])=>csBoard[nr][nc]?.startsWith('w'));
+      const mv=cap||moves[Math.floor(Math.random()*moves.length)];
+      csHist.push({board:csBoard.map(r=>[...r]),turn:'b'});
+      csApplyMove(r,c,mv[0],mv[1]);
+      const w=csCheckEnd(); if(w){csHandleEnd(w);return;}
+      csTurn='w'; renderCs(); setCsst('⚪ Sizning navbatingiz');
+      return;
+    }
+  }
+}
 
-        setInterval(() => {
-            let change = Math.floor(Math.random() * 60) - 28;
-            currentPrice += change;
-            document.getElementById('tradePrice').innerText = "$" + currentPrice.toLocaleString();
-            
-            if (isTradingActive) {
-                let diff = tradeType === 'BUY' ? (currentPrice - entryPrice) : (entryPrice - currentPrice);
-                let pips = Math.floor(diff / 2);
-                let pipsEl = document.getElementById('pipsCount');
-                pipsEl.innerText = (pips >= 0 ? "+" : "") + pips + " Pips";
-                pipsEl.style.color = pips >= 0 ? "#00ff66" : "#ef4444";
-            }
+function undoCs() {
+  if(!csHist.length) return;
+  const st=csHist.pop(); csBoard=st.board; csTurn=st.turn; csSel=null; renderCs(); setCsst('⚪ Sizning navbatingiz');
+}
+function setCsst(msg){document.getElementById('cs-st').textContent=msg;}
+function setCsMode(mode) {
+  csMp=mode==='mp'; csMpOk=false; csRoom=null;
+  document.getElementById('cs-s').classList.toggle('on',!csMp);
+  document.getElementById('cs-m').classList.toggle('on',csMp);
+  document.getElementById('cs-lobby').style.display=csMp?'block':'none';
+  initCs();
+}
+async function createCsRoom() {
+  const code=genCode(); document.getElementById('cs-code').textContent=code;
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  csRoom=r.join('cs-'+code); csMe='w';
+  csRoom.presence({nick:myNick,av:myAv,role:'w'});
+  csRoom.onPeers(peers=>{const o=peers.find(p=>p.role==='b');if(o){document.getElementById('cs-obar').style.display='flex';document.getElementById('cs-onm').textContent=o.av+' '+o.nick;csMpOk=true;toast('👥 '+o.nick+' qo\'shildi!');}});
+  csRoom.on('move',d=>{csBoard=d.board;csTurn=d.turn;const w=csCheckEnd();if(w)csHandleEnd(w);else{renderCs();setCsst(csTurn===csMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati');}});
+}
+async function joinCsRoom() {
+  const code=document.getElementById('cs-jinp').value.trim().toUpperCase();
+  if(code.length<4){toast('Kodni kiriting!');return;}
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  csRoom=r.join('cs-'+code); csMe='b'; csMpOk=true;
+  document.getElementById('cs-code').textContent=code;
+  csRoom.presence({nick:myNick,av:myAv,role:'b'});
+  csRoom.onPeers(peers=>{const h=peers.find(p=>p.role==='w');if(h){document.getElementById('cs-obar').style.display='flex';document.getElementById('cs-onm').textContent=h.av+' '+h.nick;}});
+  csRoom.on('move',d=>{csBoard=d.board;csTurn=d.turn;const w=csCheckEnd();if(w)csHandleEnd(w);else{renderCs();setCsst(csTurn===csMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati');}});
+  toast('✅ Ulandingiz: '+code);
+}
 
-            let bars = chartBox.children;
-            if(bars.length > 0) {
-                let last = bars[bars.length - 1];
-                let newH = Math.floor(Math.random() * 70) + 20;
-                last.style.height = newH + '%';
-                last.className = 'chart-bar' + (change >= 0 ? '' : ' down');
-            }
-        }, 1200);
+// ═══════════════════════════════════════════
+//  DENGIZ JANGI (SEA BATTLE)
+// ═══════════════════════════════════════════
+let sbMyGrid = [], sbOppGrid = [], sbBotShips = [], sbTurn = 'my';
 
-        function openTrade(type) {
-            playSound('click');
-            if (coins < 100) return alert("Trading ochish uchun kamida 100 🪙 kerak!");
+function initSb() {
+  sbMyGrid = Array(10).fill(0).map(() => Array(10).fill(0));
+  sbOppGrid = Array(10).fill(0).map(() => Array(10).fill(0));
+  sbBotShips = Array(10).fill(0).map(() => Array(10).fill(0));
+  sbAutoPlace();
+  // Place bot ships randomly
+  sbPlaceBotShips();
+  sbTurn = 'my';
+  renderSbGrids();
+  document.getElementById('sb-st').textContent = '🎯 Sizning navbatingiz (Raqib maydoniga o\'q uzing)';
+}
 
-            coins -= 100;
-            updateCoins();
+function sbAutoPlace() {
+  sbMyGrid = Array(10).fill(0).map(() => Array(10).fill(0));
+  const sizes = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+  for (const size of sizes) {
+    let placed = false;
+    while (!placed) {
+      const horiz = Math.random() < 0.5;
+      const r = Math.floor(Math.random() * 10);
+      const c = Math.floor(Math.random() * 10);
+      if (sbCanPlace(sbMyGrid, r, c, size, horiz)) {
+        sbDoPlace(sbMyGrid, r, c, size, horiz);
+        placed = true;
+      }
+    }
+  }
+  renderSbGrids();
+}
 
-            tradeType = type;
-            entryPrice = currentPrice;
-            isTradingActive = true;
+function sbPlaceBotShips() {
+  const sizes = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+  for (const size of sizes) {
+    let placed = false;
+    while (!placed) {
+      const horiz = Math.random() < 0.5;
+      const r = Math.floor(Math.random() * 10);
+      const c = Math.floor(Math.random() * 10);
+      if (sbCanPlace(sbBotShips, r, c, size, horiz)) {
+        sbDoPlace(sbBotShips, r, c, size, horiz);
+        placed = true;
+      }
+    }
+  }
+}
 
-            document.getElementById('tradeButtonsBefore').style.display = 'none';
-            document.getElementById('tradeButtonsAfter').style.display = 'block';
-            document.getElementById('tradeStatus').innerText = `⚡ ${type} pozitsiyasi ochildi ($${entryPrice}). Pipsni kuzating va o'zingiz yoping!`;
-        }
+function sbCanPlace(grid, r, c, size, horiz) {
+  for (let i = 0; i < size; i++) {
+    const nr = horiz ? r : r + i;
+    const nc = horiz ? c + i : c;
+    if (nr > 9 || nc > 9) return false;
+    if (grid[nr][nc] !== 0) return false;
+    // Check surrounding
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const tr = nr + dr, tc = nc + dc;
+        if (tr >= 0 && tr <= 9 && tc >= 0 && tc <= 9 && grid[tr][tc] === 1) return false;
+      }
+    }
+  }
+  return true;
+}
 
-        function closeTrade() {
-            playSound('click');
-            if (!isTradingActive) return;
+function sbDoPlace(grid, r, c, size, horiz) {
+  for (let i = 0; i < size; i++) {
+    const nr = horiz ? r : r + i;
+    const nc = horiz ? c + i : c;
+    grid[nr][nc] = 1;
+  }
+}
 
-            isTradingActive = false;
-            let diff = tradeType === 'BUY' ? (currentPrice - entryPrice) : (entryPrice - currentPrice);
-            let pips = Math.floor(diff / 2);
-            
-            let status = document.getElementById('tradeStatus');
-            document.getElementById('tradeButtonsBefore').style.display = 'flex';
-            document.getElementById('tradeButtonsAfter').style.display = 'none';
+function renderSbGrids() {
+  const myEl = document.getElementById('sb-my-grid');
+  const oppEl = document.getElementById('sb-opp-grid');
+  myEl.innerHTML = ''; oppEl.innerHTML = '';
 
-            if (pips > 0) {
-                let reward = 100 + (pips * 5);
-                coins += reward;
-                playSound('win');
-                updateCoins();
-                status.innerText = `🎉 Tabriklaymiz! +${pips} pips bilan yopildi. Sizga +${reward} 🪙 berildi!`;
-            } else {
-                status.innerText = `📉 Bozor zarariga yopildi (${pips} pips). 100 🪙 yutqazdingiz.`;
-            }
-            document.getElementById('pipsCount').innerText = "0 Pips";
-        }
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 10; c++) {
+      // My grid
+      const cell = document.createElement('div');
+      cell.className = 'sb-cell' + (sbMyGrid[r][c] === 1 ? ' ship' : sbMyGrid[r][c] === 'h' ? ' hit' : sbMyGrid[r][c] === 'm' ? ' miss' : '');
+      myEl.appendChild(cell);
 
-        /* MAU MAU LOGIC */
-        const suits = ['♥️', '♦️', '♣️', '♠️'];
-        const values = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-        let currentTableCard = { suit: '♥️', value: '7' };
-        let myHand = [];
-        let botCardsCount = 4;
+      // Opp grid
+      const oCell = document.createElement('div');
+      oCell.className = 'sb-cell' + (sbOppGrid[r][c] === 'h' ? ' hit' : sbOppGrid[r][c] === 'm' ? ' miss' : '');
+      oCell.onclick = () => sbFire(r, c);
+      oppEl.appendChild(oCell);
+    }
+  }
+}
 
-        function getRandomCard() {
-            return { suit: suits[Math.floor(Math.random() * suits.length)], value: values[Math.floor(Math.random() * values.length)] };
-        }
+function sbFire(r, c) {
+  if (sbTurn !== 'my' || sbOppGrid[r][c] !== 0) return;
+  if (sbBotShips[r][c] === 1) {
+    sbOppGrid[r][c] = 'h';
+    toast('🎯 Isqabat (Tekdi)!');
+    if (sbCheckWin(sbOppGrid, sbBotShips)) {
+      toast('🏆 Dengiz jangida g\'alaba! +60🪙');
+      addCoins(60); addXP(90); addWin();
+      showModal('🏆 G\'alaba!', 'Barcha dushman kemalari cho\'ktirildi! +60🪙');
+      setTimeout(initSb, 2000);
+      return;
+    }
+  } else {
+    sbOppGrid[r][c] = 'm';
+    toast('💧 Suvga!');
+    sbTurn = 'opp';
+    document.getElementById('sb-st').textContent = '🤖 Raqib o\'q uzmoqda...';
+    setTimeout(sbBotFire, 800);
+  }
+  renderSbGrids();
+}
 
-        function resetMauGame() {
-            playSound('click');
-            currentTableCard = getRandomCard();
-            myHand = [getRandomCard(), getRandomCard(), getRandomCard(), getRandomCard()];
-            botCardsCount = 4;
-            renderMau();
-        }
+function sbBotFire() {
+  let r, c;
+  do {
+    r = Math.floor(Math.random() * 10);
+    c = Math.floor(Math.random() * 10);
+  } while (sbMyGrid[r][c] === 'h' || sbMyGrid[r][c] === 'm');
 
-        function renderMau() {
-            let tableEl = document.getElementById('tableCard');
-            tableEl.innerText = `${currentTableCard.suit} ${currentTableCard.value}`;
-            tableEl.className = `card-item ${(currentTableCard.suit==='♥️'||currentTableCard.suit==='♦️')?'red':''}`;
-            document.getElementById('botCardCount').innerText = botCardsCount;
+  if (sbMyGrid[r][c] === 1) {
+    sbMyGrid[r][c] = 'h';
+    toast('⚠️ Kemangizga o\'q tegdi!');
+    if (sbCheckWin(sbMyGrid, sbMyGrid)) {
+      toast('😞 Mag\'lubiyat! Barcha kemalaringiz cho\'kdi.');
+      addLoss();
+      showModal('😞 Yutqazdingiz!', 'Flotingiz yo\'q qilindi.');
+      setTimeout(initSb, 2000);
+      return;
+    }
+    setTimeout(sbBotFire, 800);
+  } else {
+    sbMyGrid[r][c] = 'm';
+    sbTurn = 'my';
+    document.getElementById('sb-st').textContent = '🎯 Sizning navbatingiz';
+  }
+  renderSbGrids();
+}
 
-            let myHandEl = document.getElementById('myCards');
-            myHandEl.innerHTML = '';
-            myHand.forEach((card, index) => {
-                let div = document.createElement('div');
-                div.className = `card-item ${(card.suit==='♥️'||card.suit==='♦️')?'red':''}`;
-                div.innerText = `${card.suit} ${card.value}`;
-                div.onclick = () => playCard(index);
-                myHandEl.appendChild(div);
-            });
-        }
+function sbCheckWin(grid, ships) {
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 10; c++) {
+      if (ships[r][c] === 1 && grid[r][c] !== 'h') return false;
+    }
+  }
+  return true;
+}
 
-        function playCard(index) {
-            let card = myHand[index];
-            if (card.suit === currentTableCard.suit || card.value === currentTableCard.value) {
-                playSound('click');
-                currentTableCard = card;
-                myHand.splice(index, 1);
-                renderMau();
-                if (myHand.length === 0) {
-                    playSound('win');
-                    coins += 40;
-                    updateCoins();
-                    alert("🎉 Mau-Mau g'olibi! +40 🪙");
-                    resetMauGame();
-                    return;
-                }
-                setTimeout(botTurn, 800);
-            } else {
-                alert("❌ Bu kartani tashlab bo'lmaydi!");
-            }
-        }
+// ═══════════════════════════════════════════
+//  MAU-MAU
+// ═══════════════════════════════════════════
+const SUITS=['♥','♦','♣','♠'],VALS=['7','8','9','10','J','Q','K','A'];
+let mmDeck=[],mmHand=[],mmBot=[],mmTable=null,mmTurn='p',mmMp=false,mmMpOk=false,mmRoom=null;
 
-        function drawCard() {
-            playSound('click');
-            myHand.push(getRandomCard());
-            renderMau();
-        }
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mkDeck(){return SUITS.flatMap(s=>VALS.map(v=>({s,v})));}
+function isRed(s){return s==='♥'||s==='♦';}
+function canPlay(c){return c.s===mmTable.s||c.v===mmTable.v||c.v==='J';}
 
-        function botTurn() {
-            botCardsCount = Math.max(1, botCardsCount + (Math.random() > 0.5 ? -1 : 1));
-            currentTableCard = getRandomCard();
-            renderMau();
-        }
+function initMm(){
+  mmDeck=shuffle(mkDeck()); mmHand=[]; mmBot=[];
+  for(let i=0;i<4;i++){mmHand.push(mmDeck.pop());mmBot.push(mmDeck.pop());}
+  mmTable=mmDeck.pop(); mmTurn='p';
+  renderMm(); document.getElementById('mm-st').textContent='Sizning navbatingiz';
+}
 
-        let currentRoomCode = '';
-        function createRoom() {
-            playSound('click');
-            currentRoomCode = "KB-" + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('roomCode').innerText = currentRoomCode;
-            document.getElementById('roomArea').style.display = 'block';
-        }
+function renderMm(){
+  const tc=document.getElementById('mm-tcard');
+  tc.innerHTML=mmTable.s+'<br>'+mmTable.v;
+  tc.className='table-card '+(isRed(mmTable.s)?'r':'b');
+  document.getElementById('mm-bc').textContent=mmBot.length;
+  const h=document.getElementById('mm-hand'); h.innerHTML='';
+  mmHand.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='mcard '+(isRed(c.s)?'r':'b')+(c.v==='J'?' joker':'');
+    el.innerHTML=c.s+'<br>'+c.v;
+    const ok=canPlay(c);
+    if(!ok) el.classList.add('dis');
+    el.onclick=()=>{
+      if(mmTurn!=='p') return;
+      if(!ok){toast('❌ Bu karta mos emas!');return;}
+      mmPlayCard(i);
+    };
+    h.appendChild(el);
+  });
+}
 
-        function shareRoom() {
-            let text = `Kiber Arena 1v1 jangi! Xona kodi: ${currentRoomCode}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KiberArenaBot&text=${encodeURIComponent(text)}`);
-        }
+function mmPlayCard(i){
+  mmTable=mmHand.splice(i,1)[0]; renderMm();
+  if(mmHand.length===0){toast('🎉 Mau! G\'alaba! +40🪙');addCoins(40);addXP(60);addWin();setTimeout(initMm,1500);return;}
+  if(mmMp&&mmMpOk&&mmRoom){mmRoom.emit('state',{table:mmTable,hand:mmHand,bot:mmBot,turn:'opp'});}
+  else{mmTurn='b';document.getElementById('mm-st').textContent='🤖 Bot o\'ylayapti...';setTimeout(mmBotTurn,800);}
+}
 
-        function joinRoom() {
-            let code = document.getElementById('joinCodeInput').value.trim();
-            if (code) alert(`✅ Xonaga (${code}) ulanish bajarildi!`);
-        }
+function mmDraw(){
+  if(mmTurn!=='p') return;
+  if(!mmDeck.length) mmDeck=shuffle(mkDeck());
+  mmHand.push(mmDeck.pop()); renderMm();
+  if(mmMp&&mmMpOk&&mmRoom) mmRoom.emit('state',{table:mmTable,hand:mmHand,turn:'opp'});
+  else{mmTurn='b';setTimeout(mmBotTurn,800);}
+}
 
-        function startTerminalPrank() {
-            playSound('click');
-            let nick = document.getElementById('instaNick').value.trim();
-            if (!nick) return alert("Target nikini kiriting!");
+function mmBotTurn(){
+  const idx=mmBot.findIndex(c=>canPlay(c));
+  if(idx>=0){mmTable=mmBot.splice(idx,1)[0];}
+  else{if(!mmDeck.length)mmDeck=shuffle(mkDeck());mmBot.push(mmDeck.pop());}
+  if(mmBot.length===0){toast('😞 Bot yutdi!');addLoss();setTimeout(initMm,1500);return;}
+  mmTurn='p'; renderMm(); document.getElementById('mm-st').textContent='Sizning navbatingiz';
+}
 
-            let box = document.getElementById('terminalBox');
-            box.style.display = 'block';
-            box.innerHTML = `[>] Target aniqlandi: ${nick}<br>`;
+function setMmMode(mode){
+  mmMp=mode==='mp'; mmMpOk=false; mmRoom=null;
+  document.getElementById('mm-s').classList.toggle('on',!mmMp);
+  document.getElementById('mm-m').classList.toggle('on',mmMp);
+  document.getElementById('mm-lobby').style.display=mmMp?'block':'none';
+  initMm();
+}
+async function createMmRoom(){
+  const code=genCode(); document.getElementById('mm-code').textContent=code;
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  mmRoom=r.join('mm-'+code); mmMpOk=false;
+  mmRoom.presence({nick:myNick,av:myAv,role:'host'});
+  mmRoom.onPeers(peers=>{const o=peers.find(p=>p.role==='guest');if(o){document.getElementById('mm-obar').style.display='flex';document.getElementById('mm-onm').textContent=o.av+' '+o.nick;mmMpOk=true;toast('👥 '+o.nick+' qo\'shildi!');}});
+  mmRoom.on('state',d=>{if(d.hand)mmHand=d.hand;if(d.table)mmTable=d.table;mmTurn=d.turn==='opp'?'p':'opp';renderMm();document.getElementById('mm-st').textContent=mmTurn==='p'?'Sizning navbatingiz':'Raqib navbati';});
+}
+async function joinMmRoom(){
+  const code=document.getElementById('mm-jinp').value.trim().toUpperCase();
+  if(code.length<4){toast('Kodni kiriting!');return;}
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  mmRoom=r.join('mm-'+code); mmMpOk=true;
+  mmRoom.presence({nick:myNick,av:myAv,role:'guest'});
+  mmRoom.onPeers(peers=>{const h=peers.find(p=>p.role==='host');if(h){document.getElementById('mm-obar').style.display='flex';document.getElementById('mm-onm').textContent=h.av+' '+h.nick;}});
+  mmRoom.on('state',d=>{if(d.hand)mmHand=d.hand;if(d.table)mmTable=d.table;mmTurn=d.turn;renderMm();document.getElementById('mm-st').textContent=mmTurn==='p'?'Sizning navbatingiz':'Raqib navbati';});
+  toast('✅ Ulandingiz: '+code);
+}
 
-            let logs = [
-                `[+] Instagram SSL handshake buzildi...`,
-                `[+] Brute-force token aniqlash boshlandi...`,
-                `[!] Sessiya cookie fayllari o'qilmoqda...`,
-                `[SUCCESS] Akaunt muvaffaqiyatli qo'lga kiritildi! 🔓`
-            ];
+// ═══════════════════════════════════════════
+//  TIC TAC TOE
+// ═══════════════════════════════════════════
+let tttB=[],tttT='X',tttMp=false,tttMpOk=false,tttRoom=null,tttMe='X';
 
-            logs.forEach((log, i) => {
-                setTimeout(() => {
-                    box.innerHTML += `${log}<br>`;
-                    box.scrollTop = box.scrollHeight;
-                    if (i === logs.length - 1) playSound('win');
-                }, (i + 1) * 800);
-            });
-        }
+function initTtt(){
+  tttB=Array(9).fill(''); tttT='X';
+  renderTtt(); document.getElementById('ttt-st').textContent='❌ Sizning navbatingiz';
+}
+function renderTtt(){
+  const el=document.getElementById('ttt-board'); el.innerHTML='';
+  tttB.forEach((v,i)=>{
+    const c=document.createElement('div'); c.className='tc'+(v?' '+v.toLowerCase():'');
+    c.textContent=v; c.onclick=()=>onTtt(i); el.appendChild(c);
+  });
+}
+function onTtt(i){
+  const myT=tttMp&&tttMpOk?tttMe:'X';
+  if(tttB[i]||tttT!==myT) return;
+  tttB[i]=myT; tttT=myT==='X'?'O':'X'; renderTtt();
+  const w=chkTtt(); if(w){endTtt(w);return;}
+  if(tttMp&&tttMpOk&&tttRoom){tttRoom.emit('move',{board:tttB,turn:tttT});}
+  else if(!tttMp&&tttT==='O') setTimeout(botTtt,500);
+  document.getElementById('ttt-st').textContent=tttT==='X'?'❌ Sizning navbatingiz':'⭕ Raqib navbati';
+}
+function botTtt(){
+  const empty=tttB.map((v,i)=>v?null:i).filter(v=>v!==null);
+  let mv=null;
+  for(const i of empty){tttB[i]='O';if(chkTtt()==='O'){mv=i;tttB[i]='';break;}tttB[i]='';}
+  if(mv===null)for(const i of empty){tttB[i]='X';if(chkTtt()==='X'){mv=i;tttB[i]='';break;}tttB[i]='';}
+  if(mv===null){if(tttB[4]==='')mv=4;else mv=empty[Math.floor(Math.random()*empty.length)];}
+  tttB[mv]='O'; tttT='X'; renderTtt();
+  const w=chkTtt(); if(w){endTtt(w);return;}
+  document.getElementById('ttt-st').textContent='❌ Sizning navbatingiz';
+}
+function chkTtt(){
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(const [a,b,c]of L)if(tttB[a]&&tttB[a]===tttB[b]&&tttB[b]===tttB[c])return tttB[a];
+  if(tttB.every(v=>v))return'draw'; return null;
+}
+function endTtt(w){
+  if(w==='draw'){toast('🤝 Durrang!');}
+  else if(w==='X'){toast('🏆 G\'alaba! +20🪙');addCoins(20);addXP(30);addWin();}
+  else{toast('😞 Yutqazdingiz!');addLoss();}
+  setTimeout(initTtt,1400);
+}
+function setTttMode(mode){
+  tttMp=mode==='mp'; tttMpOk=false; tttRoom=null;
+  document.getElementById('ttt-s').classList.toggle('on',!tttMp);
+  document.getElementById('ttt-m').classList.toggle('on',tttMp);
+  document.getElementById('ttt-lobby').style.display=tttMp?'block':'none';
+  initTtt();
+}
+async function createTttRoom(){
+  const code=genCode(); document.getElementById('ttt-code').textContent=code;
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  tttRoom=r.join('ttt-'+code); tttMe='X';
+  tttRoom.presence({nick:myNick,av:myAv,mark:'X'});
+  tttRoom.onPeers(peers=>{const o=peers.find(p=>p.mark==='O');if(o){document.getElementById('ttt-obar').style.display='flex';document.getElementById('ttt-onm').textContent=o.av+' '+o.nick;tttMpOk=true;toast('👥 '+o.nick+' qo\'shildi!');}});
+  tttRoom.on('move',d=>{tttB=d.board;tttT=d.turn;renderTtt();const w=chkTtt();if(w)endTtt(w);else document.getElementById('ttt-st').textContent=tttT===tttMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati';});
+}
+async function joinTttRoom(){
+  const code=document.getElementById('ttt-jinp').value.trim().toUpperCase();
+  if(code.length<4){toast('Kodni kiriting!');return;}
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  tttRoom=r.join('ttt-'+code); tttMe='O'; tttMpOk=true;
+  tttRoom.presence({nick:myNick,av:myAv,mark:'O'});
+  tttRoom.onPeers(peers=>{const h=peers.find(p=>p.mark==='X');if(h){document.getElementById('ttt-obar').style.display='flex';document.getElementById('ttt-onm').textContent=h.av+' '+h.nick;}});
+  tttRoom.on('move',d=>{tttB=d.board;tttT=d.turn;renderTtt();const w=chkTtt();if(w)endTtt(w);else document.getElementById('ttt-st').textContent=tttT===tttMe?'🎯 Sizning navbatingiz':'⏳ Raqib navbati';});
+  toast('✅ Ulandingiz: '+code);
+}
 
-        function buyItem(price) {
-            playSound('click');
-            if (coins >= price) {
-                coins -= price;
-                updateCoins();
-                alert("Xarid muvaffaqiyatli yakunlandi! ✅");
-            } else {
-                alert("Koinlar yetarli emas! ❌");
-            }
-        }
+// ═══════════════════════════════════════════
+//  RPS
+// ═══════════════════════════════════════════
+const RW={'🪨':'📄','📄':'✂️','✂️':'🪨'};
+let rpsW=0,rpsL=0,rpsD=0,rpsMp=false,rpsMpOk=false,rpsRoom=null,rpsMine=null;
 
-        function updateCoins() {
-            document.getElementById('coinCount').innerText = coins;
-            document.getElementById('myRankCoins').innerText = coins + " 🪙";
-            localStorage.setItem('kiber_coins', coins);
-        }
+function playRps(c){
+  if(rpsMp&&rpsMpOk&&rpsRoom){
+    rpsMine=c;
+    document.getElementById('rps-you').textContent=c;
+    document.getElementById('rps-opp').textContent='⏳';
+    document.getElementById('rps-res').textContent='Raqib tanlayapti...';
+    rpsRoom.emit('move',{choice:c});
+    return;
+  }
+  const bot=['🪨','📄','✂️'][Math.floor(Math.random()*3)];
+  resolveRps(c,bot);
+}
+function resolveRps(me,opp){
+  document.getElementById('rps-you').textContent=me;
+  document.getElementById('rps-opp').textContent=opp;
+  let res;
+  if(me===opp){rpsD++;res='🤝 Durrang!';}
+  else if(RW[me]===opp){rpsW++;res='🏆 Yutdingiz! +10🪙';addCoins(10);addXP(15);addWin();}
+  else{rpsL++;res='😞 Yutqazdingiz!';addLoss();}
+  document.getElementById('rps-res').textContent=res;
+  document.getElementById('rw').textContent=rpsW;
+  document.getElementById('rl').textContent=rpsL;
+  document.getElementById('rd').textContent=rpsD;
+  rpsMine=null;
+}
+function setRpsMode(mode){
+  rpsMp=mode==='mp'; rpsMpOk=false; rpsRoom=null; rpsMine=null;
+  document.getElementById('rps-s').classList.toggle('on',!rpsMp);
+  document.getElementById('rps-m').classList.toggle('on',rpsMp);
+  document.getElementById('rps-lobby').style.display=rpsMp?'block':'none';
+  document.getElementById('rps-opp-lbl').textContent=rpsMp?'RAQIB':'BOT';
+  document.getElementById('rps-you').textContent='❓';
+  document.getElementById('rps-opp').textContent='❓';
+  document.getElementById('rps-res').textContent='';
+}
+async function createRpsRoom(){
+  const code=genCode(); document.getElementById('rps-code').textContent=code;
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  rpsRoom=r.join('rps-'+code); rpsMpOk=false;
+  rpsRoom.presence({nick:myNick,av:myAv});
+  rpsRoom.onPeers(peers=>{if(peers.length){document.getElementById('rps-obar').style.display='flex';document.getElementById('rps-onm').textContent=peers[0].av+' '+peers[0].nick;rpsMpOk=true;toast('👥 '+peers[0].nick+' qo\'shildi!');}});
+  rpsRoom.on('move',d=>{if(rpsMine)resolveRps(rpsMine,d.choice);});
+}
+async function joinRpsRoom(){
+  const code=document.getElementById('rps-jinp').value.trim().toUpperCase();
+  if(code.length<4){toast('Kodni kiriting!');return;}
+  const r=await getRoom(); if(!r){toast('Room yoq');return;}
+  rpsRoom=r.join('rps-'+code); rpsMpOk=true;
+  rpsRoom.presence({nick:myNick,av:myAv});
+  rpsRoom.onPeers(peers=>{if(peers.length){document.getElementById('rps-obar').style.display='flex';document.getElementById('rps-onm').textContent=peers[0].av+' '+peers[0].nick;}});
+  rpsRoom.on('move',d=>{if(rpsMine)resolveRps(rpsMine,d.choice);});
+  toast('✅ Ulandingiz: '+code);
+}
 
-        resetMauGame();
-    </script>
+// ═══════════════════════════════════════════
+//  NUMBER GUESS
+// ═══════════════════════════════════════════
+let numSec=0,numAtt=10;
+function initNum(){
+  numSec=Math.floor(Math.random()*100)+1; numAtt=10;
+  document.getElementById('num-att').textContent=numAtt;
+  document.getElementById('num-hint').textContent='';
+  document.getElementById('num-hist').innerHTML='';
+  document.getElementById('num-inp').value='';
+}
+function guessNum(){
+  const v=parseInt(document.getElementById('num-inp').value);
+  if(!v||v<1||v>100){toast('1-100 oralig\'ida raqam!');return;}
+  numAtt--; document.getElementById('num-att').textContent=numAtt;
+  const badge=document.createElement('span');
+  badge.textContent=v;
+  badge.style.cssText='padding:3px 7px;border-radius:5px;font-family:var(--fd);font-size:11px;border:1px solid var(--border);';
+  if(v===numSec){
+    badge.style.color='var(--success)';
+    document.getElementById('num-hist').appendChild(badge);
+    const coins=numAtt*5+10; addCoins(coins); addXP(30); addWin();
+    document.getElementById('num-hint').textContent='🏆 To\'g\'ri! Raqam: '+numSec+' | +'+coins+'🪙';
+    setTimeout(initNum,2000); return;
+  }
+  badge.style.color=v<numSec?'var(--accent)':'var(--danger)';
+  document.getElementById('num-hist').appendChild(badge);
+  if(numAtt===0){
+    document.getElementById('num-hint').textContent='❌ Javob: '+numSec; addLoss(); setTimeout(initNum,2000); return;
+  }
+  document.getElementById('num-hint').textContent=v<numSec?'📈 Kattaroq!':'📉 Kichikroq!';
+  document.getElementById('num-inp').value='';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const tg = window.Telegram?.WebApp;
+  if(tg){tg.expand();tg.enableClosingConfirmation();}
+
+  let tapCount=0, tapTimer=null;
+  document.querySelector('.logo')?.addEventListener('click',()=>{
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer=setTimeout(()=>tapCount=0,800);
+    if(tapCount>=5){tapCount=0; document.getElementById('admin-panel').style.display='block';}
+  });
+
+  if(S.nick){
+    myNick=S.nick; myAv=S.avatar||'🎮';
+    document.getElementById('nick-screen').classList.add('hidden');
+    checkSub_flow(startApp);
+  }
+});
+</script>
 </body>
 </html>
